@@ -64,6 +64,13 @@ func (s *Server) OnSecretUpdate(resourceName string) {
 	})
 }
 
+func (s *Server) SetUpdateCSRCallback(f func(csr []byte) (bool, bool, error)) {
+	if s.workloadSds == nil {
+		return
+	}
+	s.workloadSds.CSRCallback = f
+}
+
 // Stop closes the gRPC server and debug server.
 func (s *Server) Stop() {
 	if s == nil {

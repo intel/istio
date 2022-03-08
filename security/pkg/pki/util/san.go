@@ -37,6 +37,10 @@ const (
 	TypeURI
 )
 
+const (
+	ExtensionMessage = "SGX Quote has been verified"
+)
+
 var (
 	// Mapping from the type of an identity to the OID tag value for the X.509
 	// SAN field (see https://tools.ietf.org/html/rfc5280#appendix-A.2)
@@ -63,6 +67,7 @@ var (
 	// The OID for the SAN extension (See
 	// http://www.alvestrand.no/objectid/2.5.29.17.html).
 	oidSubjectAlternativeName = asn1.ObjectIdentifier{2, 5, 29, 17}
+	oidSubjectExtensionName   = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 54392, 5, 1283}
 )
 
 // Identity is an object holding both the encoded identifier bytes as well as
@@ -95,6 +100,27 @@ func BuildSubjectAltNameExtension(hosts string) (*pkix.Extension, error) {
 	}
 
 	return san, nil
+}
+
+// BuildAttestationResultExtension builds the quote attestation result extension for the certificate
+func BuildAttestationResultExtension(csrextension []pkix.Extension) (*pkix.Extension, error) {
+	val := asn1.RawValue{}
+	for _, i := range csrextension {
+		if i.Id.Equal(oidSubjectExtensionName) {
+			val = asn1.RawValue{
+				Bytes: []byte(ExtensionMessage),
+				Class: asn1.ClassUniversal,
+				Tag:   asn1.TagUTF8String,
+			}
+		}
+	}
+
+	bs, err := asn1.Marshal(val)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal the raw values for SGX field (err: %s)", err)
+	}
+
+	return &pkix.Extension{Id: oidSubjectExtensionName, Critical: false, Value: bs}, nil
 }
 
 // BuildSANExtension builds a `pkix.Extension` of type "Subject

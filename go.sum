@@ -896,6 +896,8 @@ github.com/istio/gateway-api v0.0.0-20221006194514-510afb48c902 h1:HO3PWUQcKjEV7
 github.com/istio/gateway-api v0.0.0-20221006194514-510afb48c902/go.mod h1:W3V6rE55Qx6C+llroEEzsRkmDcmoPxgm+uwMCR2MUrs=
 github.com/intel/envoy-go-control-plane v0.10.3-0.20220906122019-3ca618ce5fab h1:ABEm4h+mcdbho3CMLLRFDRbLK98Ugxz43xHUfYqYhEE=
 github.com/intel/envoy-go-control-plane v0.10.3-0.20220906122019-3ca618ce5fab/go.mod h1:fJJn/j26vwOu972OllsvAgJJM//w9BV6Fxbg2LuVd34=
+github.com/intel/envoy-go-control-plane v0.10.3-0.20220923070132-cb44993f195f h1:qjg5kD59bilPeGpMYhqAYYDr673cE/3kjoswPtrBcSY=
+github.com/intel/envoy-go-control-plane v0.10.3-0.20220923070132-cb44993f195f/go.mod h1:fJJn/j26vwOu972OllsvAgJJM//w9BV6Fxbg2LuVd34=
 github.com/intel/istio-api v0.0.0-20220906121335-c63969b060d1 h1:HiI+MwL7njxXSTJrArvq1Qa5sjY4RuC2nIDCMqLCJ7k=
 github.com/intel/istio-api v0.0.0-20220906121335-c63969b060d1/go.mod h1:hQkF0Q19MCmfOTre/Sg4KvrwwETq45oaFplnBm2p4j8=
 github.com/j-keck/arping v0.0.0-20160618110441-2cf9dc699c56/go.mod h1:ymszkNOg6tORTn+6F6j+Jc8TOr5osrynvN6ivFWZ2GA=

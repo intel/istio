@@ -285,7 +285,12 @@ func genCertTemplateFromCSR(csr *x509.CertificateRequest, subjectIDs []string, t
 	if err != nil {
 		return nil, err
 	}
-	exts := []pkix.Extension{*ext}
+	// Build cert extensions with the quote attestation result.
+	attestationResultExtension, err := BuildAttestationResultExtension(csr.Extensions)
+	if err != nil {
+		return nil, err
+	}
+	exts := []pkix.Extension{*ext, *attestationResultExtension}
 
 	subject := pkix.Name{}
 	// Dual use mode if common name in CSR is not empty.
