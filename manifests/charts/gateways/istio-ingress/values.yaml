@@ -108,6 +108,11 @@ gateways:
     # The injection template to use for the gateway. If not set, no injection will be performed.
     injectionTemplate: ""
 
+  # Intel SGX related features
+  sgx: 
+    enabled: false
+    certExtensionValidationEnabled: false
+
 # Revision is set as 'version' label and part of the resource names when installing multiple control planes.
 revision: ""
 

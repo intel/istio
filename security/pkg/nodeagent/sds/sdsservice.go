@@ -18,40 +18,56 @@ package sds
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
 	cryptomb "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/cryptomb/v3alpha"
 	qat "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/qat/v3alpha"
+	sgx "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/sgx/v3alpha"
+	sgxtls "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/transport_sockets/tls/cert_validator/extension/v3alpha"
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	tls "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
 	sds "github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	mesh "istio.io/api/mesh/v1alpha1"
 	"istio.io/istio/pilot/pkg/model"
+	authn_model "istio.io/istio/pilot/pkg/security/model"
 	"istio.io/istio/pilot/pkg/util/protoconv"
 	"istio.io/istio/pilot/pkg/xds"
 	v3 "istio.io/istio/pilot/pkg/xds/v3"
 	"istio.io/istio/pkg/config/schema/kind"
 	"istio.io/istio/pkg/security"
+	"istio.io/istio/pkg/spiffe"
+	"istio.io/istio/pkg/test/util/tmpl"
 	"istio.io/istio/pkg/util/sets"
+	pkiutil "istio.io/istio/security/pkg/pki/util"
 	"istio.io/pkg/log"
 )
 
 var sdsServiceLog = log.RegisterScope("sds", "SDS service debugging", 0)
 
 type sdsservice struct {
-	st security.SecretManager
-
-	XdsServer  *xds.DiscoveryServer
-	stop       chan struct{}
-	rootCaPath string
-	pkpConf    *mesh.PrivateKeyProvider
+	st                                security.SecretManager
+	XdsServer                         *xds.DiscoveryServer
+	stop                              chan struct{}
+	rootCaPath                        string
+	pkpConf                           *mesh.PrivateKeyProvider
+	SgxEnabled                        bool
+	SgxCertExtensionValidationEnabled bool
+	CertificateReady                  bool
+	sgxMutex                          sync.RWMutex
+	useECDSA                          bool
+	sanExtension                      string
+	// callback function to invoke when there is a new CSR object.
+	CSRCallback func(csr []byte) (bool, bool, error)
 }
 
 // Assert we implement the generator interface
@@ -95,9 +111,24 @@ func NewXdsServer(stop chan struct{}, gen model.XdsResourceGenerator) *xds.Disco
 // newSDSService creates Secret Discovery Service which implements envoy SDS API.
 func newSDSService(st security.SecretManager, options *security.Options, pkpConf *mesh.PrivateKeyProvider) *sdsservice {
 	ret := &sdsservice{
-		st:      st,
-		stop:    make(chan struct{}),
-		pkpConf: pkpConf,
+		st:                                st,
+		stop:                              make(chan struct{}),
+		pkpConf:                           pkpConf,
+		CertificateReady:                  false,
+		SgxEnabled:                        options.SgxEnabled,
+		SgxCertExtensionValidationEnabled: options.SgxCertExtensionValidationEnabled,
+	}
+
+	csrHostName := &spiffe.Identity{
+		TrustDomain:    options.TrustDomain,
+		Namespace:      options.WorkloadNamespace,
+		ServiceAccount: options.ServiceAccount,
+	}
+	san := csrHostName.String()
+	ret.sanExtension = san
+
+	if options.ECCSigAlg == "ECDSA" {
+		ret.useECDSA = true
 	}
 	ret.XdsServer = NewXdsServer(ret.stop, ret)
 
@@ -144,8 +175,16 @@ func newSDSService(st security.SecretManager, options *security.Options, pkpConf
 }
 
 func (s *sdsservice) generate(resourceNames []string) (model.Resources, error) {
+	s.sgxMutex.Lock()
+	defer s.sgxMutex.Unlock()
 	resources := model.Resources{}
+	var res *anypb.Any
+	// here if Envoy request stage "init"
+	// just response the SDS config and waiting for external CSR
+	// if Envoy request stage "cert" by gRPC request
+	// call GenerateSecret() to generate cert and call toEnvoySecret() response with cert
 	for _, resourceName := range resourceNames {
+		fmt.Println("ResourceName: " + resourceName)
 		secret, err := s.st.GenerateSecret(resourceName)
 		if err != nil {
 			// Typically, in Istiod, we do not return an error for a failure to generate a resource
@@ -156,8 +195,13 @@ func (s *sdsservice) generate(resourceNames []string) (model.Resources, error) {
 			// Instead, we rely on the client to retry (with backoff) on failures.
 			return nil, fmt.Errorf("failed to generate secret for %v: %v", resourceName, err)
 		}
-
-		res := protoconv.MessageToAny(toEnvoySecret(secret, s.rootCaPath, s.pkpConf))
+		if s.SgxCertExtensionValidationEnabled {
+			fmt.Println("SgxCertExtensionValidationEnabled == true. Envoy will verify the SGX extension in the peer certificate")
+		} else {
+			fmt.Println("SgxCertExtensionValidationEnabled == false")
+		}
+		res = protoconv.MessageToAny(toEnvoySecret(secret, s.rootCaPath, s.SgxEnabled, s.CertificateReady, s.useECDSA,
+			s.SgxCertExtensionValidationEnabled, s.sanExtension, s.pkpConf))
 		resources = append(resources, &discovery.Resource{
 			Name:     resourceName,
 			Resource: res,
@@ -205,13 +249,67 @@ func (s *sdsservice) FetchSecrets(ctx context.Context, discReq *discovery.Discov
 	return nil, status.Error(codes.Unimplemented, "FetchSecrets not implemented")
 }
 
+func (s *sdsservice) SendCsrAndQuote(stream sds.SecretDiscoveryService_SendCsrAndQuoteServer) error {
+	// Handle upstream SDS recv
+	go func() {
+		for {
+			ctx, err := stream.Recv()
+			if err != nil {
+				sdsServiceLog.Infof(codes.NotFound, "Can't get CsrAndQuoteRequest")
+				return
+			}
+			sdsServiceLog.Info("Received CsrAndQuoteRequest")
+
+			if !s.SgxEnabled {
+				sdsServiceLog.Info("As SGX is not enabled, Request in SendCsrAndQuote() is going to be ignored.")
+				return
+			}
+			/*
+				1. Get CSR and encode it to base64, as a byte[]
+				2. validate this CSR
+				3. Generate Workload Certificate according to the CSR
+				3. retrun Cert to Envoy by SDS response.
+			*/
+
+			csr := ctx.GetCsr()
+			needPush := false
+			certReady := false
+
+			s.sgxMutex.Lock()
+
+			if len(csr) != 0 {
+				needPush, certReady, _ = s.CSRCallback([]byte(ctx.Csr))
+				if needPush && certReady {
+					s.CertificateReady = true
+				}
+			}
+			s.sgxMutex.Unlock()
+
+			if s.CertificateReady {
+				// Update Callback
+				s.XdsServer.Push(&model.PushRequest{
+					Full: false,
+					ConfigsUpdated: map[model.ConfigKey]struct{}{
+						{Kind: kind.Secret, Name: authn_model.SDSDefaultResourceName}: {},
+					},
+					Reason: []model.TriggerReason{model.SecretTrigger},
+				})
+				sdsServiceLog.Info("CertificateReady")
+				return
+			}
+		}
+	}()
+	return nil
+}
+
 func (s *sdsservice) Close() {
 	close(s.stop)
 	s.XdsServer.Shutdown()
 }
 
 // toEnvoySecret converts a security.SecretItem to an Envoy tls.Secret
-func toEnvoySecret(s *security.SecretItem, caRootPath string, pkpConf *mesh.PrivateKeyProvider) *tls.Secret {
+func toEnvoySecret(s *security.SecretItem, caRootPath string, sgxEnabled bool, certificateReady bool, useECDSA bool,
+	sgxCertExtensionValidationEnabled bool, sanExtension string, pkpConf *mesh.PrivateKeyProvider) *tls.Secret {
 	secret := &tls.Secret{
 		Name: s.ResourceName,
 	}
@@ -223,14 +321,40 @@ func toEnvoySecret(s *security.SecretItem, caRootPath string, pkpConf *mesh.Priv
 		cfg, ok = security.SdsCertificateConfigFromResourceName(s.ResourceName)
 	}
 	if s.ResourceName == security.RootCertReqResourceName || (ok && cfg.IsRootCertificate()) {
-		secret.Type = &tls.Secret_ValidationContext{
-			ValidationContext: &tls.CertificateValidationContext{
-				TrustedCa: &core.DataSource{
-					Specifier: &core.DataSource_InlineBytes{
-						InlineBytes: s.RootCert,
+		if sgxCertExtensionValidationEnabled {
+			ValidatorConfig := &sgxtls.ExtensionCertValidatorConfig{
+				Extensions: []*sgxtls.ExtensionCertValidatorConfig_Extension{
+					{
+						Key:   DefaultQuoteKey,
+						Value: pkiutil.ExtensionMessage,
 					},
 				},
-			},
+			}
+			msg, _ := anypb.New(ValidatorConfig)
+
+			secret.Type = &tls.Secret_ValidationContext{
+				ValidationContext: &tls.CertificateValidationContext{
+					TrustedCa: &core.DataSource{
+						Specifier: &core.DataSource_InlineBytes{
+							InlineBytes: s.RootCert,
+						},
+					},
+					CustomValidatorConfig: &core.TypedExtensionConfig{
+						Name:        ValidatorName,
+						TypedConfig: msg,
+					},
+				},
+			}
+		} else {
+			secret.Type = &tls.Secret_ValidationContext{
+				ValidationContext: &tls.CertificateValidationContext{
+					TrustedCa: &core.DataSource{
+						Specifier: &core.DataSource_InlineBytes{
+							InlineBytes: s.RootCert,
+						},
+					},
+				},
+			}
 		}
 	} else {
 		switch pkpConf.GetProvider().(type) {
@@ -286,23 +410,82 @@ func toEnvoySecret(s *security.SecretItem, caRootPath string, pkpConf *mesh.Priv
 			}
 
 		default:
-			secret.Type = &tls.Secret_TlsCertificate{
-				TlsCertificate: &tls.TlsCertificate{
-					CertificateChain: &core.DataSource{
-						Specifier: &core.DataSource_InlineBytes{
-							InlineBytes: s.CertificateChain,
+			if sgxEnabled {
+				s.PrivateKey = nil
+				stage := Stage1
+				if certificateReady {
+					stage = Stage2
+				}
+
+				sdsSecretConfig := authn_model.ConstructSdsSecretConfig(authn_model.SDSDefaultResourceName)
+
+				CSRConfig, err := NewCSRConfig(sanExtension)
+				if err != nil {
+					return nil
+				}
+				conf := &sgx.SgxPrivateKeyMethodConfig{
+					SgxLibrary:  SgxLibrary,
+					KeyLabel:    KeyLabel,
+					UsrPin:      UsrPin,
+					SoPin:       SoPin,
+					TokenLabel:  TokenLabel,
+					RsaKeySize:  RsaKeySize,
+					Stage:       stage,
+					KeyType:     KeyType,
+					CsrConfig:   CSRConfig + UsrPin + "\n",
+					SdsConfig:   sdsSecretConfig.SdsConfig,
+					QuoteKey:    DefaultQuoteKey,
+					QuotepubKey: DefaultPubKey,
+				}
+
+				if useECDSA {
+					conf.KeyType = "ecdsa"
+					conf.EcdsaKeyParam = "P-256"
+				}
+
+				msg, _ := anypb.New(conf)
+
+				secret.Type = &tls.Secret_TlsCertificate{
+					TlsCertificate: &tls.TlsCertificate{
+						CertificateChain: &core.DataSource{
+							Specifier: &core.DataSource_InlineBytes{
+								InlineBytes: s.CertificateChain,
+							},
+						},
+						PrivateKeyProvider: &tls.PrivateKeyProvider{
+							ProviderName: "sgx",
+							ConfigType: &tls.PrivateKeyProvider_TypedConfig{
+								TypedConfig: msg,
+							},
+						},
+						PrivateKey: nil,
+					},
+				}
+			} else {
+				secret.Type = &tls.Secret_TlsCertificate{
+					TlsCertificate: &tls.TlsCertificate{
+						CertificateChain: &core.DataSource{
+							Specifier: &core.DataSource_InlineBytes{
+								InlineBytes: s.CertificateChain,
+							},
+						},
+						PrivateKey: &core.DataSource{
+							Specifier: &core.DataSource_InlineBytes{
+								InlineBytes: s.PrivateKey,
+							},
 						},
 					},
-					PrivateKey: &core.DataSource{
-						Specifier: &core.DataSource_InlineBytes{
-							InlineBytes: s.PrivateKey,
-						},
-					},
-				},
+				}
 			}
 		}
 	}
 	return secret
+}
+
+func NewCSRConfig(san string) (string, error) {
+	return tmpl.Evaluate(CsrConfig, map[string]interface{}{
+		"SAN": san,
+	})
 }
 
 func pushLog(names []string) model.XdsLogDetails {
