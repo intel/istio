@@ -16,11 +16,13 @@ package options
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	meshconfig "istio.io/api/mesh/v1alpha1"
 	"istio.io/istio/pilot/pkg/features"
 	securityModel "istio.io/istio/pilot/pkg/security/model"
+	"istio.io/istio/pkg/bootstrap"
 	"istio.io/istio/pkg/config/constants"
 	"istio.io/istio/pkg/jwt"
 	"istio.io/istio/pkg/security"
@@ -62,6 +64,26 @@ func NewSecurityOptions(proxyConfig *meshconfig.ProxyConfig, stsPort int, tokenM
 		credFetcherTypeEnv, credIdentityProvider)
 	if err != nil {
 		return o, err
+	}
+
+	annotations, err := bootstrap.ReadPodAnnotations("")
+	if err != nil {
+		if os.IsNotExist(err) {
+			log.Debugf("failed to read pod annotations: %v", err)
+		} else {
+			log.Warnf("failed to read pod annotations: %v", err)
+		}
+	} else {
+		if v, ok := annotations["sgx.intel.com/enabled"]; ok && v == "true" {
+			o.SgxEnabled = true
+		} else {
+			o.SgxEnabled = false
+		}
+		if v, ok := annotations["sgx.intel.com/cert-extension-validation-enabled"]; ok && v == "true" {
+			o.SgxCertExtensionValidationEnabled = true
+		} else {
+			o.SgxCertExtensionValidationEnabled = false
+		}
 	}
 
 	var tokenManager security.TokenManager

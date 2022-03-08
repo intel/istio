@@ -38,6 +38,8 @@ import (
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/network/connection_balance/dlb/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/cryptomb/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/qat/v3alpha"
+	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/sgx/v3alpha"
+	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/transport_sockets/tls/cert_validator/extension/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/vcl/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/envoy/admin/v2alpha"
 	_ "github.com/envoyproxy/go-control-plane/envoy/admin/v3"

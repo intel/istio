@@ -9,7 +9,7 @@ exclude k8s.io/kubernetes v1.13.0
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.5
 
 // Needed for QATzip compression library and SGX private key provider go bindings
-replace github.com/envoyproxy/go-control-plane => github.com/intel/envoy-go-control-plane v0.10.3-0.20220906122019-3ca618ce5fab
+replace github.com/envoyproxy/go-control-plane => github.com/intel/envoy-go-control-plane v0.10.3-0.20220923070132-cb44993f195f
 
 // Needed for QAT Private Key Provider API
 replace istio.io/api => github.com/intel/istio-api v0.0.0-20220906121335-c63969b060d1

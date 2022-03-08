@@ -270,6 +270,8 @@ message GatewaysConfig {
 
   // Configuration for an ingress gateway.
   IngressGatewayConfig istio_ingressgateway = 4 [json_name="istio-ingressgateway"];
+
+  SGX sgx = 5;
 }
 
 // Global Configuration for Istio components.
@@ -558,6 +560,12 @@ message IngressGatewayConfig {
   ServiceAccount serviceAccount = 47;
 
   // Next available 48.
+}
+
+// Intel SGX related resources
+message SGX {
+  bool enabled = 1;
+  bool certExtensionValidationEnabled = 2;
 }
 
 // IngressGatewayZvpnConfig enables cross-cluster access using SNI matching.
@@ -932,6 +940,8 @@ message ProxyConfig {
   string includeInboundPorts = 38;
 
   string includeOutboundPorts = 39;
+
+  SGX sgx = 40;
 }
 
 // Specifies which tracer to use.

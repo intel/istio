@@ -249,6 +249,12 @@ type Options struct {
 	KeyFilePath string
 	// The path for an existing root certificate bundle
 	RootCertFilePath string
+
+	// Whether Intel SGX feature is enabled in current Proxy
+	SgxEnabled bool
+
+	// Whether to identify the sgx extension in the peer certificate
+	SgxCertExtensionValidationEnabled bool
 }
 
 // TokenManager contains methods for generating token.
