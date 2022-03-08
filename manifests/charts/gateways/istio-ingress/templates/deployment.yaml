@@ -50,6 +50,13 @@ spec:
         prometheus.io/path: "/stats/prometheus"
         {{- end }}
         sidecar.istio.io/inject: "false"
+        {{- if .Values.gateways.sgx.enabled }}
+        sgx.intel.com/enabled: "true"
+        sgx.intel.com/quote-provider: "aesmd"
+        {{- end }}
+        {{- if .Values.gateways.sgx.certExtensionValidationEnabled }}
+        sgx.intel.com/cert-extension-validation-enabled: "true"
+        {{- end }}
 {{- if $gateway.podAnnotations }}
 {{ toYaml $gateway.podAnnotations | indent 8 }}
 {{ end }}
@@ -145,10 +152,23 @@ spec:
             successThreshold: 1
             timeoutSeconds: 1
           resources:
-{{- if $gateway.resources }}
-{{ toYaml $gateway.resources | indent 12 }}
+            requests:
+{{- if $gateway.resources.requests }}
+{{ toYaml $gateway.resources.requests | indent 14 }}
 {{- else }}
-{{ toYaml .Values.global.defaultResources | indent 12 }}
+{{ toYaml .Values.global.defaultResources.requests | indent 14 }}
+{{- end }}
+{{- if .Values.gateways.sgx.enabled }}
+              sgx.intel.com/epc: 1Mi
+{{- end }}
+            limits:
+{{- if $gateway.resources.limits }}
+{{ toYaml $gateway.resources.limits | indent 14 }}
+{{- else }}
+{{ toYaml .Values.global.defaultResources.limits | indent 14 }}
+{{- end }}
+{{- if .Values.gateways.sgx.enabled }}
+              sgx.intel.com/epc: 1Mi
 {{- end }}
           env:
           - name: JWT_POLICY
@@ -205,7 +225,7 @@ spec:
           - name: TRUST_DOMAIN
             value: "{{ .Values.meshConfig.trustDomain }}"
           {{- end }}
-          {{- if not $gateway.runAsRoot }}
+          {{- if not (or $gateway.runAsRoot .Values.gateways.sgx.enabled) }}
           - name: ISTIO_META_UNPRIVILEGED_POD
             value: "true"
           {{- end }}
