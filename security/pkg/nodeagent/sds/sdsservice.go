@@ -22,6 +22,9 @@ import (
 
 	"github.com/cenkalti/backoff/v4"
 	cryptomb "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/cryptomb/v3alpha"
+	qat "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/qat/v3alpha"
+	sgx "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/sgx/v3alpha"
+	sgxtls "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/transport_sockets/tls/cert_validator/extension/v3alpha"
 	core "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	tls "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
@@ -258,6 +261,32 @@ func toEnvoySecret(s *security.SecretItem, caRootPath string, pkpConf *mesh.Priv
 					},
 				},
 			}
+		case *mesh.PrivateKeyProvider_Qat:
+			qatConf := pkpConf.GetQat()
+			msg := util.MessageToAny(&qat.QatPrivateKeyMethodConfig{
+				PollDelay: durationpb.New(time.Duration(qatConf.GetPollDelay().Nanos)),
+				PrivateKey: &core.DataSource{
+					Specifier: &core.DataSource_InlineBytes{
+						InlineBytes: s.PrivateKey,
+					},
+				},
+			})
+			secret.Type = &tls.Secret_TlsCertificate{
+				TlsCertificate: &tls.TlsCertificate{
+					CertificateChain: &core.DataSource{
+						Specifier: &core.DataSource_InlineBytes{
+							InlineBytes: s.CertificateChain,
+						},
+					},
+					PrivateKeyProvider: &tls.PrivateKeyProvider{
+						ProviderName: "qat",
+						ConfigType: &tls.PrivateKeyProvider_TypedConfig{
+							TypedConfig: msg,
+						},
+					},
+				},
+			}
+
 		default:
 			secret.Type = &tls.Secret_TlsCertificate{
 				TlsCertificate: &tls.TlsCertificate{
