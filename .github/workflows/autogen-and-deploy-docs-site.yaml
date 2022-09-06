@@ -1,0 +1,61 @@
+name: Generate and deploy docs site
+
+on:
+  push:
+    branches: [ 'release-*-intel' ]
+  workflow_dispatch: #Trigger manually from repo
+
+permissions:
+  contents: read
+
+jobs:
+
+  autogen-and-deploy-docs-site:
+
+    permissions:
+      contents: write
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install -U sphinx
+          python3 -m pip install recommonmark sphinx_rtd_theme sphinx-markdown-tables
+
+      - name: Setup docs output direcotry
+        run: |
+          rm -rf $HOME/output
+          mkdir $HOME/output
+          touch $HOME/output/.nojekyll
+
+      - name: Set up git
+        run: |
+          echo $(git version)
+          author=$(git --no-pager log --format=format:'%an' -n 1)
+          email=$(git --no-pager log --format=format:'%ae' -n 1)
+          git config --global user.name "$author"
+          git config --global user.email "$email"
+
+      - name: Build sphinx
+        run: |
+          cd intel
+          sphinx-build -M html . _build
+          cp docs/index.html _build/html/index.html
+          mv _build/html/* $HOME/output/
+          echo 'successfully updated docs'
+
+      - name: Deploy docs to GH pages
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd $HOME/output
+          git init
+          git add .
+          git commit -m "latest html output for docs"
+          git push -f https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:gh-pages

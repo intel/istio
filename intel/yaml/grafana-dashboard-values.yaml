@@ -1,0 +1,60 @@
+grafana:
+  defaultDashboardsEnabled: false
+  env:
+   GF_SERVER_ROOT_URL: 'http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:3000/grafana/'
+   GF_SERVER_DOMAIN: kube-prometheus-stack-grafana.monitoring.svc.cluster.local
+   GF_SERVER_SERVE_FROM_SUB_PATH: true
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      folder: /tmp/dashboards
+      searchNamespace: ALL
+
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+    - job_name: 'istiod'
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - istio-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: istiod;http-monitoring
+
+    - job_name: 'envoy-stats'
+      metrics_path: /stats/prometheus
+      kubernetes_sd_configs:
+      - role: pod
+
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_container_port_name]
+        action: keep
+        regex: '.*-envoy-prom'
+    routePrefix: /
+    externalUrl: 'https://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/prometheus/'
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://kube-prometheus-stack-prometheus.monitoring:9090/prometheus/
+      access: proxy
+      isDefault: true
+
+kubelet:
+  enabled: true
+  namespace: kube-system
+  serviceMonitor:
+    interval: ""
+    proxyUrl: ""
+    https: true
+    cAdvisor: true
+    probes: true
+    resource: false
+    resourcePath: "/metrics/resource/v1alpha1"
