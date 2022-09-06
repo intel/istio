@@ -61,3 +61,7 @@ var/
 ._*
 # MacOS Desktop Services Store
 .DS_Store
+# Sphinx documentation site
+_build
+_static
+_templates
