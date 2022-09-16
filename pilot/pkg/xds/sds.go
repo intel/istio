@@ -348,7 +348,7 @@ func toEnvoyKeyCertSecret(name string, key, cert []byte, proxy *model.Proxy, mes
 		})
 	case *mesh.PrivateKeyProvider_Qat:
 		qatConf := pkpConf.GetQat()
-		msg := util.MessageToAny(&qat.QatPrivateKeyMethodConfig{
+		msg := protoconv.MessageToAny(&qat.QatPrivateKeyMethodConfig{
 			PollDelay: durationpb.New(time.Duration(qatConf.GetPollDelay().Nanos)),
 			PrivateKey: &core.DataSource{
 				Specifier: &core.DataSource_InlineBytes{
@@ -356,7 +356,7 @@ func toEnvoyKeyCertSecret(name string, key, cert []byte, proxy *model.Proxy, mes
 				},
 			},
 		})
-		res = util.MessageToAny(&envoytls.Secret{
+		res = protoconv.MessageToAny(&envoytls.Secret{
 			Name: name,
 			Type: &envoytls.Secret_TlsCertificate{
 				TlsCertificate: &envoytls.TlsCertificate{
