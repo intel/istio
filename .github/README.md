@@ -37,8 +37,8 @@ APIs.
 
 Intel distribution for Istio will track the latest Istio release branch
 in the corresponding branch. For example, Istio 1.15 will be tracked in
-release-1.15-intel branch. The releases will be tagged with naming
-scheme such as release-1.15.3-intel.2, which would indicate the second
+release-1.15-intel branch. The releases will be tagged with a naming
+scheme such as 1.15.3-intel.2, which would indicate the second
 Intel distribution for Istio release done on top of Istio upstream
 1.15.3 release. The same Intel release branches and tags will be used
 throughout other Intel projects that Istio depends on in the
