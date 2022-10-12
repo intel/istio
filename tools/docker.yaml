@@ -32,6 +32,7 @@ images:
   - tools/packaging/common/envoy_bootstrap.json
   - tools/packaging/common/gcp_envoy_bootstrap.json
   - LICENSE
+  - tools/packaging/common/attribution-collector.sh
   - ${TARGET_OUT_LINUX}/${RELEASE_MODE}/${SIDECAR}
   # WASM has no debug mode, always use release/
   - ${TARGET_OUT_LINUX}/release/stats-filter.wasm
@@ -161,3 +162,15 @@ images:
 - name: app_sidecar_base_centos_7 # oldest supported RHEL-based
   dockerfile: pkg/test/echo/docker/Dockerfile.app_sidecar_base_centos
   base: true
+
+- name: proxyv2-intel
+  dockerfile: pilot/docker/Dockerfile.proxyv2-intel
+  files:
+  - tools/packaging/common/attribution-collector.sh
+  - attributions/
+
+- name: pilot-intel
+  dockerfile: pilot/docker/Dockerfile.pilot-intel
+  files:
+  - tools/packaging/common/attribution-collector.sh
+  - attributions/

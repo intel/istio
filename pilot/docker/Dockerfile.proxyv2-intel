@@ -1,0 +1,5 @@
+FROM localhost:5000/proxyv2:latest
+
+COPY attributions/envoy /usr/local
+COPY attributions/istio /usr/local
+COPY attributions/pilot-agent /usr/local
