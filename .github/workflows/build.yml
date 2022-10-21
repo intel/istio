@@ -42,12 +42,12 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Push Containers
-      if: ${{ github.event_name == 'push' }}
+      if: ${{ github.event_name == 'push' && github.ref_type != 'tag' }}
       run: |
         make push
 
     - name: Push Container Proxyv2
-      if: ${{ github.event_name == 'push' }}
+      if: ${{ github.event_name == 'push' && github.ref_type != 'tag' }}
       run: |
         docker push ${HUB}/proxyv2:${TAG}
 
@@ -59,9 +59,8 @@ jobs:
         TAG: ${{ github.ref_name }}
 
     - name: Push Container Proxyv2 With Tag
-      if: ${{ github.event_name == 'push' }}
+      if: ${{ github.ref_type == 'tag' }}
       run: |
         docker push ${HUB}/proxyv2:${TAG}
       env:
         TAG: ${{ github.ref_name }}
-
