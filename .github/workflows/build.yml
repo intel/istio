@@ -3,6 +3,8 @@ name: Build
 on:
   push:
     branches: [ release-*-intel ]
+    tags:
+    - '*'   
   pull_request:
     branches: [ release-*-intel ]
 
@@ -40,11 +42,26 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Push Containers
-      if: ${{ github.event_name != 'pull_request' }}
+      if: ${{ github.event_name == 'push' }}
       run: |
         make push
 
     - name: Push Container Proxyv2
-      if: ${{ github.event_name != 'pull_request' }}
+      if: ${{ github.event_name == 'push' }}
       run: |
         docker push ${HUB}/proxyv2:${TAG}
+
+    - name: Push Containers With Tag
+      if: ${{ github.ref_type == 'tag' }}
+      run: |
+        make push
+      env:
+        TAG: ${{ github.ref_name }}
+
+    - name: Push Container Proxyv2 With Tag
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        docker push ${HUB}/proxyv2:${TAG}
+      env:
+        TAG: ${{ github.ref_name }}
+
