@@ -80,7 +80,7 @@ sudo systemctl restart containerd
 Use the following command for the Istio installation:
 
 ```bash
-istioctl install -y -f istio/istio-intel-qat-hw.yaml
+istioctl install -y -f intel/yaml/intel-istio-qat-hw.yaml
 ```
 
 The above command allocates single crypto (`qat.intel.com/cy`) and compression (`qat.intel.com/dc`) QAT endpoint for the `istio-ingress-gateway`. In addition, it defines Istio sidecar injection template (`sidecarInjectorWebhook`) for the sidecar QAT endpoint allocation. 
@@ -104,7 +104,7 @@ inject.istio.io/templates: sidecar,qathw-compression
 Enable QAT compression acceleration for `istio-ingress-gateway`:
 
 ```console
-kubectl apply -f qat/qat-compression-envoy-filter.yaml
+kubectl apply -f intel/yaml/qat-compression-envoy-filter.yaml
 ```
 
 At this stage, the `istio-ingress-gateway` is ready for QAT compression acceleration for HTTP(s) data.
@@ -112,7 +112,7 @@ At this stage, the `istio-ingress-gateway` is ready for QAT compression accelera
 Enable QAT compression acceleration for `istio-proxy` sidecars:
 
 ```console
-kubectl apply -f  qat/compression-decompression-sidecar-envoy-filter.yaml
+kubectl apply -f  intel/yaml/compression-decompression-sidecar-envoy-filter.yaml
 ```
 
 At this stage, the Istio sidecars are ready for QAT compression acceleration for HTTP(s) data.

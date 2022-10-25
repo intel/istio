@@ -18,7 +18,7 @@ CryptoMB means using Intel® Advanced Vector Extensions 512 (Intel® AVX-512) in
 Use the following command for the installation:
 
 ```bash
-istioctl install -y -f istio/istio-intel-cryptomb.yaml
+istioctl install -y -f intel/yaml/intel-istio-cryptomb.yaml
 ```
 
 With the above installation, CryptoMB acceleration is used both in `istio-ingress-gateway` and `istio-proxy` sidecar containers.
