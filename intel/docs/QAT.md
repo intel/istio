@@ -23,8 +23,8 @@ This solution is based on Linux in-tree driver and is utilizing the [qatlib](htt
 
 Your Kubernetes nodes requires the following preparations
 
-- Install Linux kernel 5.17 or similar (TBD)
-- Enable IOMMU from BIOS (TBD)
+- Install Linux kernel 5.17 or similar
+- Enable IOMMU from BIOS
 - Enable IOMMU for Linux kernel
 - Enhance the container runtime memory lock limit
 - Install [Intel® QAT Device Plugin for Kubernetes](https://github.com/intel/intel-device-plugins-for-kubernetes)
