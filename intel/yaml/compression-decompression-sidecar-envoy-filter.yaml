@@ -1,0 +1,55 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: sidecar-qatzip-compression
+  namespace: istio-system
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+            subFilter:
+              name: "envoy.filters.http.router"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.compressor
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.compressor.v3.Compressor
+          content_length: 48
+          compressor_library:
+            name: qatzip
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.compression.qatzip.compressor.v3alpha.Qatzip
+              hardware_buffer_size: "SZ_8K"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: sidecar-gzip-decompression
+  namespace: istio-system
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_OUTBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+            subFilter:
+              name: "envoy.filters.http.router"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.decompressor
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.decompressor.v3.Decompressor
+          decompressor_library:
+            name: basic
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.compression.gzip.decompressor.v3.Gzip
