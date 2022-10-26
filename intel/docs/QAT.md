@@ -26,7 +26,6 @@ Your Kubernetes nodes requires the following preparations
 - Install Linux kernel 5.17 or similar (TBD)
 - Enable IOMMU from BIOS (TBD)
 - Enable IOMMU for Linux kernel
-- Add QAT firmware
 - Enhance the container runtime memory lock limit
 - Install [Intel® QAT Device Plugin for Kubernetes](https://github.com/intel/intel-device-plugins-for-kubernetes)
 
@@ -44,18 +43,6 @@ Once the system is rebooted, check if the IOMMU has been enabled via the followi
 ```console
 dmesg| grep IOMMU
 [    1.528237] DMAR: IOMMU enabled
-```
-
-To add QAT firmware, copy the [firmware](../files/qat20-fw-stepping-e.tgz) to the host machine and run the below commands.
-
-> NOTE: This is for steppig 6 (E)
-
-```console
-tar xzf qat20-fw-stepping-e.tgz
-sudo cp QAT20/quickassist/qat/fw/e/qat_4xxx.bin /usr/lib/firmware/
-sudo cp QAT20/quickassist/qat/fw/qat_4xxx_mmp.bin /usr/lib/firmware/
-sudo rmmod qat_4xxx
-sudo modprobe qat_4xxx
 ```
 
 To enhance the `containerd` runtime memory lock limit, add the following file (CRIO has similar configuration):
