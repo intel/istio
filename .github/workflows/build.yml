@@ -5,8 +5,6 @@ on:
     branches: [ release-*-intel ]
     tags:
     - '*'   
-  pull_request:
-    branches: [ release-*-intel ]
 
 env:
   HUB: ghcr.io/${{ github.repository }}
