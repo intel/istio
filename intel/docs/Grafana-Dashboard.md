@@ -1,4 +1,4 @@
-# Intel Distribution of Istio (Grafana Dashboard)
+# Grafana Dashboard
 Prerequisites:
 * Kubernetes cluster with at least one Ice Lake node
 * Cert-Manager
