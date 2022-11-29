@@ -1,0 +1,65 @@
+name: Build
+
+on:
+  push:
+    branches: [ release-*-intel ]
+    tags:
+    - '*'   
+  pull_request:
+    branches: [ release-*-intel ]
+
+env:
+  HUB: ghcr.io/${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: self-hosted
+    environment:
+      name: dev
+
+    env:
+      DOCKER_TARGETS: docker.pilot docker.istioctl docker.operator docker.install-cni
+      TAG: ${{ github.base_ref || github.ref_name }} 
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build Containers
+      run: |
+        make docker
+
+    - name: Build Container Proxyv2
+      run: |
+        ./.github/workflows/build.sh
+      env:
+        UPDATE_BRANCH: ${{ github.base_ref || github.ref_name }} 
+
+    - name: Login to the container registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.HUB }}
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push Containers
+      if: ${{ github.event_name == 'push' && github.ref_type != 'tag' }}
+      run: |
+        make push
+
+    - name: Push Container Proxyv2
+      if: ${{ github.event_name == 'push' && github.ref_type != 'tag' }}
+      run: |
+        docker push ${HUB}/proxyv2:${TAG}
+
+    - name: Push Containers With Tag
+      if: ${{ github.ref_type == 'tag' }}
+      run: |
+        make push
+      env:
+        TAG: ${{ github.ref_name }}
+
+    - name: Push Container Proxyv2 With Tag
+      if: ${{ github.ref_type == 'tag' }}
+      run: |
+        docker push ${HUB}/proxyv2:${TAG}
+      env:
+        TAG: ${{ github.ref_name }}
