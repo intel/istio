@@ -1,0 +1,1169 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
+          "type": "dashboard"
+        }
+      ]
+    },
+    "description": "",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 1,
+    "links": [],
+    "liveNow": true,
+    "panels": [
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "__systemRef": "hideSeriesFrom",
+              "matcher": {
+                "id": "byNames",
+                "options": {
+                  "mode": "exclude",
+                  "names": [
+                    "1"
+                  ],
+                  "prefix": "All except:",
+                  "readOnly": true
+                }
+              },
+              "properties": [
+                {
+                  "id": "custom.hideFrom",
+                  "value": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "id": 42,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "pluginVersion": "8.3.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"2\"}[60s])",
+            "interval": "",
+            "legendFormat": "1",
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"3\"}[60s]) - ignoring(le) increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"2\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "2",
+            "refId": "B"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"4\"}[60s]) - ignoring(le) increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"3\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "3",
+            "refId": "C"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"5\"}[60s]) - ignoring(le) increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"4\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "4",
+            "refId": "D"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"6\"}[60s]) - ignoring(le) increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"5\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "5",
+            "refId": "E"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"7\"}[60s]) - ignoring(le) increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"6\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "6",
+            "refId": "F"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"8\"}[60s]) - ignoring(le) increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"7\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "7",
+            "refId": "G"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"9\"}[60s]) - ignoring(le) increase(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"8\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "8",
+            "refId": "H"
+          }
+        ],
+        "title": "Bucket Utilization (Time Series)",
+        "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "none"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "id": 22,
+        "options": {
+          "displayMode": "gradient",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true
+        },
+        "pluginVersion": "8.3.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"2\"}[60s])",
+            "interval": "",
+            "legendFormat": "1",
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"3\"}[60s]) - ignoring(le) irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"2\"}[60s])\r\n",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "2",
+            "refId": "B"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"4\"}[60s]) - ignoring(le) irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"3\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "3",
+            "refId": "C"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"5\"}[60s]) - ignoring(le) irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"4\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "4",
+            "refId": "D"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"6\"}[60s]) - ignoring(le) irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"5\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "5",
+            "refId": "E"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"7\"}[60s]) - ignoring(le) irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"6\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "6",
+            "refId": "F"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"8\"}[60s]) - ignoring(le) irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"7\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "7",
+            "refId": "G"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"9\"}[60s]) - ignoring(le) irate(envoy_listener_cryptomb_rsa_queue_sizes_bucket{job=\"envoy-stats\", le=\"8\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "8",
+            "refId": "H"
+          }
+        ],
+        "title": "Bucket Utilization",
+        "type": "bargauge"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 8
+        },
+        "id": 6,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_cryptomb_rsa_queue_sizes_count{job=\"envoy-stats\"}[60s])",
+            "interval": "",
+            "legendFormat": "{{ listener_address}}",
+            "refId": "A"
+          }
+        ],
+        "title": "Envoy Listener Cryptomb Requests ",
+        "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 8
+        },
+        "id": 46,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_listener_ssl_handshake{job=\"envoy-stats\"}[60s])",
+            "interval": "",
+            "legendFormat": "{{listener_address}}",
+            "refId": "A"
+          }
+        ],
+        "title": "Envoy Listener Handshakes",
+        "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "string"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 8
+        },
+        "id": 2,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(envoy_server_total_connections{app=\"istio-ingressgateway\"}[60s])",
+            "interval": "",
+            "legendFormat": "number of total connections",
+            "refId": "A"
+          }
+        ],
+        "title": "Current Envoy TLS connections ",
+        "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "bytes"
+          },
+          "overrides": [
+            {
+              "__systemRef": "hideSeriesFrom",
+              "matcher": {
+                "id": "byNames",
+                "options": {
+                  "mode": "exclude",
+                  "names": [
+                    "istio-proxy usage "
+                  ],
+                  "prefix": "All except:",
+                  "readOnly": true
+                }
+              },
+              "properties": [
+                {
+                  "id": "custom.hideFrom",
+                  "value": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        },
+        "id": 8,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "sum(increase(container_memory_usage_bytes{container=\"istio-proxy\", namespace=\"istio-system\"}[60s])) by (container)",
+            "interval": "",
+            "legendFormat": "{{container}} usage ",
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "rate(container_memory_working_set_bytes{container=\"istio-proxy\", namespace=\"istio-system\"}[60s])",
+            "hide": true,
+            "interval": "",
+            "legendFormat": "working set bytes",
+            "refId": "B"
+          }
+        ],
+        "title": "Istio Ingress Gateway Memory Usage",
+        "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": [
+            {
+              "__systemRef": "hideSeriesFrom",
+              "matcher": {
+                "id": "byNames",
+                "options": {
+                  "mode": "exclude",
+                  "names": [
+                    "istio-proxy user"
+                  ],
+                  "prefix": "All except:",
+                  "readOnly": true
+                }
+              },
+              "properties": [
+                {
+                  "id": "custom.hideFrom",
+                  "value": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        },
+        "id": 34,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(container_cpu_system_seconds_total{container=\"istio-proxy\", namespace=\"istio-system\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "{{container}} system",
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "increase(container_cpu_user_seconds_total{container=\"istio-proxy\", namespace=\"istio-system\"}[60s])",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "{{container}} user",
+            "refId": "B"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "sum(rate(container_cpu_usage_seconds_total{container=\"istio-proxy\", namespace=\"istio-system\"}[60s])) by (container)",
+            "hide": true,
+            "interval": "",
+            "legendFormat": "{{container}} usage",
+            "refId": "C"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "sum(rate(container_cpu_user_seconds_total{container=\"istio-proxy\", namespace=\"istio-system\"}[60s])) by (container)",
+            "hide": true,
+            "interval": "",
+            "legendFormat": "",
+            "refId": "D"
+          }
+        ],
+        "title": "Istio Ingress Gateway CPU Usage ",
+        "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 25,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "max": 100,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "percent"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        },
+        "id": 14,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "rate(node_memory_MemTotal_bytes[60s]) - rate(node_memory_MemFree_bytes[60s]) - rate(node_memory_Cached_bytes[60s]) - rate(node_memory_Buffers_bytes[60s])",
+            "hide": true,
+            "interval": "",
+            "legendFormat": "usage",
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "rate(node_memory_Buffers_bytes[60s])",
+            "hide": true,
+            "interval": "",
+            "legendFormat": "buffers",
+            "refId": "B"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "rate(node_memory_Cached_bytes[60s])",
+            "hide": true,
+            "interval": "",
+            "legendFormat": "cached",
+            "refId": "C"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "rate(node_memory_MemFree_bytes[60s])",
+            "hide": true,
+            "interval": "",
+            "legendFormat": "free",
+            "refId": "D"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "100 * (1 - ((avg_over_time(node_memory_MemFree_bytes[60s]) + avg_over_time(node_memory_Cached_bytes[60s]) + avg_over_time(node_memory_Buffers_bytes[60s])) / avg_over_time(node_memory_MemTotal_bytes[60s])))",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "{{node}}",
+            "refId": "E"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "1 - (avg(irate(node_cpu_seconds_total{mode!=\"idle\"}[60s])))",
+            "hide": true,
+            "interval": "",
+            "legendFormat": "{{cpu}}",
+            "refId": "F"
+          }
+        ],
+        "title": "Node Memory Usage",
+        "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "percentunit"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        },
+        "id": 32,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "sum(irate(node_cpu_seconds_total{mode=\"system\"}[60s])) by (node)",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "{{node}} system",
+            "refId": "A"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "sum(irate(node_cpu_seconds_total{mode=\"user\"}[60s])) by (node)",
+            "hide": false,
+            "interval": "",
+            "legendFormat": "{{node}} user",
+            "refId": "B"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "sum(increase(node_cpu_seconds_total{mode=\"user\"}[60s])) by (cpu)",
+            "hide": true,
+            "interval": "",
+            "legendFormat": "{{cpu}} cpu",
+            "refId": "C"
+          }
+        ],
+        "title": "Node CPU Usage",
+        "type": "timeseries"
+      }
+    ],
+    "refresh": "5s",
+    "schemaVersion": 33,
+    "style": "dark",
+    "tags": [
+      "cryptomb"
+    ],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "timepicker": {
+      "hidden": false
+    },
+    "timezone": "browser",
+    "title": "Intel Distribution of Istio",
+    "uid": "IKB08nYnk",
+    "version": 99,
+    "weekStart": ""
+  }
