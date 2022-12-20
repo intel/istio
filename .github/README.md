@@ -9,6 +9,8 @@ on, finding gaps in upstream project features in relation to hardware
 enablement, and testing and deploying Intel features for Istio service
 mesh.
 
+Intel features are documented [here](https://intel.github.io/istio).
+
 Intel managed distribution of Istio consists of the following source
 code repositories:
 
