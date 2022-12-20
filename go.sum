@@ -681,6 +681,8 @@ github.com/imdario/mergo v0.3.5 h1:JboBksRwiiAJWvIYJVo46AfV+IAIKZpfrSzVKj42R4Q=
 github.com/imdario/mergo v0.3.5/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
+github.com/intel/istio-api v0.0.0-20221220121607-f44007735636 h1:jAqwAGluFNAlLbR80EI8KRhq202xfQmOe2I3YB1ed8A=
+github.com/intel/istio-api v0.0.0-20221220121607-f44007735636/go.mod h1:hQkF0Q19MCmfOTre/Sg4KvrwwETq45oaFplnBm2p4j8=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jgautheron/goconst v1.5.1/go.mod h1:aAosetZ5zaeC/2EfMeRswtxUFBpe2Hr7HzkgX4fanO4=
 github.com/jhump/protoreflect v1.6.1/go.mod h1:RZQ/lnuN+zqeRVpQigTwO6o0AJUkxbnSnpuG7toUTG4=
@@ -1963,6 +1965,8 @@ istio.io/api v0.0.0-20221208070204-0528cb6ce63b h1:pVcDWtdJYwrI79dLtj4x9tO3uF3o5
 istio.io/api v0.0.0-20221208070204-0528cb6ce63b/go.mod h1:hQkF0Q19MCmfOTre/Sg4KvrwwETq45oaFplnBm2p4j8=
 istio.io/client-go v1.16.1-0.20221208071003-87bc3534a86b h1:cjmOOAkt+FQoBgXgsRA9seRYKKg9UKkTYq2Oqk3njh8=
 istio.io/client-go v1.16.1-0.20221208071003-87bc3534a86b/go.mod h1:NT96qrYnZ7AcuKnuknH/3GI+tv9Qm6VhC2ZX2vRaKeg=
+istio.io/client-go v1.16.0-rc.0.0.20221109202342-07ece772a919 h1:TnZQP5IcgDLp4OH0Di31/qoDNFqN+EkVPg2iMl4WOnU=
+istio.io/client-go v1.16.0-rc.0.0.20221109202342-07ece772a919/go.mod h1:UV8SFeM2qNime5sobkr2m8oTCPxxVt9xCY4ol50U9YQ=
 istio.io/pkg v0.0.0-20221107183613-574f8d141535 h1:kmbIDhOWCyVV3o80NR2O9SiTDoN5sXjE+AtABDQrOxs=
 istio.io/pkg v0.0.0-20221107183613-574f8d141535/go.mod h1:Rom8KLVw76XZdvGZet+54VPZswL/XqX8x4MBH6khECw=
 k8s.io/api v0.18.2/go.mod h1:SJCWI7OLzhZSvbY7U8zwNl9UA4o1fizoug34OV/2r78=
