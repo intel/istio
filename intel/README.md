@@ -9,6 +9,7 @@ Intel managed distribution of Istio is a project aiming to showcase and integrat
 * [HTTP data compression acceleration with QAT2.0](docs/QAT.md)
 * [Private key protection with SGX](docs/SGX-mTLS.md)
 * [Grafana Dashboard](docs/Grafana-Dashboard.md)
+* [Excluding Istio interfaces for 5G core](docs/Excluding-Istio-interfaces-for-5G-core.md)
 
 ## Supported versions
 * Kubernetes v1.24
