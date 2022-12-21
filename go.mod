@@ -8,6 +8,11 @@ exclude k8s.io/kubernetes v1.13.0
 // Client-go does not handle different versions of mergo due to some breaking changes - use the matching version
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.5
 
+// Needed for QATzip compression library and SGX private key provider go
+// bindings, also TLS bumping and splicing
+replace github.com/envoyproxy/go-control-plane => github.com/intel/envoy-go-control-plane v0.10.3-0.20221221111055-37d3bcdf275e
+
+// Needed for QAT Private Key Provider API
 replace istio.io/api => github.com/intel/istio-api v0.0.0-20221220121607-f44007735636
 
 require (
