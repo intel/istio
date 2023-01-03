@@ -3,7 +3,7 @@ kind: IstioOperator
 spec:
   profile: minimal
   hub: "docker.io/intel"
-  tag: "1.15.1-intel.0"
+  tag: "1.16.0-intel.0"
   values:
     global:
       proxy:
@@ -23,7 +23,7 @@ spec:
         ISTIO_META_DNS_CAPTURE: "true"
         # Enable automatic address allocation, optional
         ISTIO_META_DNS_AUTO_ALLOCATE: "true"
-        # RSA or ECDSA 
+        # RSA or ECDSA
         # ECC_SIGNATURE_ALGORITHM: ECDSA
 
   components:

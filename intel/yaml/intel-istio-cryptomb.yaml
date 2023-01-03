@@ -6,14 +6,14 @@ apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 spec:
   profile: default
-  tag: 1.15.2-intel.0
+  tag: 1.16.0-intel.0
   hub: docker.io/intel
   meshConfig:
     defaultConfig:
       proxyStatsMatcher:
         inclusionPrefixes:
           - "listener"
-      # Allows cryptomb bucket statistics via EnvoyFilter 
+      # Allows cryptomb bucket statistics via EnvoyFilter
       proxyMetadata:
         BOOTSTRAP_XDS_AGENT: "true"
 
