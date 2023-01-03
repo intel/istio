@@ -15,7 +15,7 @@ This solution is based on Linux in-tree driver and is utilizing the [qatlib](htt
 
 | Acronym | Description             |
 |---------| ------------------------|
-| QAT     | Intel® QuickAssist Technology Gen 4 avaialble in Sapphire Rapids CPUs |  
+| QAT     | Intel® QuickAssist Technology available with 4th Gen Intel® Xeon® Scalable processors |
 | cy      | Cryptographic |
 | dc      | Compression |
 
@@ -51,7 +51,7 @@ To enhance the `containerd` runtime memory lock limit, add the following file (C
 sudo mkdir /etc/systemd/system/containerd.service.d
 sudo bash -c 'cat <<EOF >>/etc/systemd/system/containerd.service.d/memlock.conf
 [Service]
-LimitMEMLOCK=16777216
+LimitMEMLOCK=134217728
 EOF'
 ```
 
@@ -70,7 +70,7 @@ Use the following command for the Istio installation:
 istioctl install -y -f intel/yaml/intel-istio-qat-hw.yaml
 ```
 
-The above command allocates single crypto (`qat.intel.com/cy`) and compression (`qat.intel.com/dc`) QAT endpoint for the `istio-ingress-gateway`. In addition, it defines Istio sidecar injection template (`sidecarInjectorWebhook`) for the sidecar QAT endpoint allocation. 
+The above command allocates single crypto (`qat.intel.com/cy`) and compression (`qat.intel.com/dc`) QAT endpoint for the `istio-ingress-gateway`. In addition, it defines Istio sidecar injection template (`sidecarInjectorWebhook`) for the sidecar QAT endpoint allocation.
 
 At this stage, the `istio-ingress-gateway` is ready for QAT crypto acceleration for TLS handshakes.
 
