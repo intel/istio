@@ -1,5 +1,5 @@
 # Feature: TLS handshake acceleration using QAT2.0 crypto
-# Config: Envoy + BoringSSL + QAT2.0 
+# Config: Envoy + BoringSSL + QAT2.0
 # Requires: Sapphire Rapids CPU
 # Applies: Istio ingress gateway and sidecars
 
@@ -10,9 +10,9 @@ metadata:
   namespace: istio-system
 spec:
   profile: default
-  tag: 1.15.1-intel.0
+  tag: 1.16.0-intel.0
   hub: docker.io/intel
-  
+
   components:
     ingressGateways:
     - name: istio-ingressgateway
