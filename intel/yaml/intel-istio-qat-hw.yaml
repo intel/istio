@@ -1,6 +1,6 @@
 # Feature: TLS handshake acceleration using QAT2.0 crypto
 # Config: Envoy + BoringSSL + QAT2.0
-# Requires: Sapphire Rapids CPU
+# Requires: 4th Gen Intel® Xeon® Scalable processor
 # Applies: Istio ingress gateway and sidecars
 
 apiVersion: install.istio.io/v1alpha1
