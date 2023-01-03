@@ -13,7 +13,7 @@ Intel managed distribution of Istio is a project aiming to showcase and integrat
 
 ## Supported versions
 * Kubernetes v1.24
-* Istio v1.15
+* Istio v1.16
 * cert-manager v1.7 or later
 * Linux kernel 5.18 or later
 * Intel Device Plugins for Kubernetes v0.24
@@ -23,4 +23,4 @@ Intel managed distribution of Istio is a project aiming to showcase and integrat
 Use the follwoing command for basic installation:
 
 ```bash
-istioctl install --set hub=docker.io/intel --set tag=1.15.1-intel.0
+istioctl install --set hub=docker.io/intel --set tag=1.16.0-intel.0
