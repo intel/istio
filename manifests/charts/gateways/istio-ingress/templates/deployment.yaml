@@ -273,9 +273,13 @@ spec:
             readOnly: true
           {{- end }}
           {{- end }}
-{{- $noSGX := true }}
+{{- $enableSGX := false }}
 {{- range $container := $gateway.additionalContainers }}
-{{ if and ($noSGX) (contains "sds" $container.name) }}
+{{ if contains "sds" $container.name }}
+{{- $enableSGX = true }}
+{{ end }}
+{{- end }}
+{{- if $enableSGX }}
           resources:
             limits:
               sgx.intel.com/enclave: 1
@@ -283,9 +287,7 @@ spec:
             requests:
               sgx.intel.com/enclave: 1
               sgx.intel.com/epc: 1Mi
-{{- $noSGX := false }}
-{{end}}
-{{- end }}
+{{- end}}
       volumes:
       - emptyDir: {}
         name: workload-socket
