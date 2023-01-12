@@ -1,0 +1,18 @@
+include Makefile
+
+.PHONY: intel.attributions intel.proxyv2 intel.pilot intel
+
+intel.attributions:
+	go mod tidy
+	go get github.com/google/go-licenses
+	tools/packaging/common/attribution-collector.sh --go pilot/cmd/pilot-agent --prefix attributions/pilot-agent
+	tools/packaging/common/attribution-collector.sh --go pilot/cmd/pilot-discovery --prefix attributions/pilot-discovery
+
+intel.proxyv2: docker.proxyv2 docker.proxyv2-intel
+	@echo Built $^
+
+intel.pilot: docker.pilot docker.pilot-intel
+	@echo Built $^
+
+intel: intel.attributions intel.proxyv2 intel.pilot
+       @echo Built $^
