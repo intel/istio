@@ -12,16 +12,36 @@ Prerequisites for using Istio mTLS private key protection with SGX:
 - [Intel® SGX device plugin](https://github.com/intel/intel-device-plugins-for-kubernetes/blob/main/cmd/sgx_plugin/README.md) for Kubernetes
 - [Intel® SGX AESM daemon](https://github.com/intel/linux-sgx#install-the-intelr-sgx-psw)
 - Linux kernel version 5.11 or later on the host (in tree SGX driver)
+- [trusted-certificate-issuer](https://github.com/intel/trusted-certificate-issuer)
 
 ## Installation
 
 This section covers how to install Istio mTLS private key protection with SGX
+1. Create sgx-signer (Refer to https://github.com/intel/trusted-certificate-issuer/blob/main/docs/istio-custom-ca-with-csr.md)
 
-1. Install Istio
+```sh
+export CA_SIGNER_NAME=sgx-signer
+cat << EOF | kubectl create -f -
+apiVersion: tcs.intel.com/v1alpha1
+kind: TCSClusterIssuer
+metadata:
+    name: $CA_SIGNER_NAME
+spec:
+    secretName: ${CA_SIGNER_NAME}-secret
+    # If using quoteattestaion, set selfSign as false
+    # selfSign: false
+EOF
+```
 
-> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.16.0-intel.0` since only that contains Istio manifest enhancements for SGX mTLS.
+```sh
+# Get CA Cert and replace it in ./intel/yaml/intel-istio-sgx-mTLS.yaml
+kubectl get secret -n tcs-issuer ${CA_SIGNER_NAME}-secret -o jsonpath='{.data.tls\.crt}' |base64 -d | sed -e 's;\(.*\);        \1;g'
+```
+2. Install Istio
 
-You can also customize the `intel-istio-sgx-mTLS.yaml` according to your needs. If you want to enable sgx in sidecars or gateway, you can set the `sgx.enable` flag as `true`. And if you want do the quote verification, you should enable the `certExtensionValidationEnabled` flag.
+> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.16.1-intel.0` since only that contains Istio manifest enhancements for SGX mTLS.
+
+You can also customize the `intel-istio-sgx-mTLS.yaml` according to your needs. If you want do the quote verification, you can set the `NEED_QUOTE` env as `true`. And if you are using the TCS v1alpha1 api, you should set the `RANDOM_NONCE` as `false`.
 
 ```sh
 istioctl install -f ./intel/yaml/intel-istio-sgx-mTLS.yaml -y
@@ -35,45 +55,32 @@ By deault, `Istio` will be installed in the `istio-system` namespce
 # Ensure that the pod is running state
 $ kubectl get po -n istio-system
 NAME                                    READY   STATUS    RESTARTS   AGE
-istio-egressgateway-66b7c87ff8-qdf2z    1/1     Running   0          24s
-istio-ingressgateway-789bb4b4f5-7mrq9   1/1     Running   0          24s
-istiod-6d49576478-cg6xc                 1/1     Running   0          28s
+istio-ingressgateway-6cd77bf4bf-t4cwj   1/1     Running   0          70m
+istiod-6cf88b78dc-dthpw                 1/1     Running   0          70m
 ```
 
 ## Deploy sample application
 
-1. Create test namespace:
-
+1. Create sleep and httpbin deployment:
+> NOTE: If you want use the sds-custom injection template, you need to set the annotations `inject.istio.io/templates` for both `sidecar` and `custom`. And the ClusterRole is also required.
 ```sh
-# create test namespace
-$ kubectl create ns foo
+kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/sleep-sgx-mTLS.yaml )
+kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/httpbin-sgx-mTLS.yaml )
 ```
 
-2. Create httpbin deployment:
-
-```sh
-kubectl apply -f <(istioctl kube-inject -f https://raw.githubusercontent.com/istio/istio/master/samples/httpbin/httpbin.yaml) -n foo
-```
-
-3. Create sleep deployment:
-
-```sh
-kubectl apply -f <(istioctl kube-inject -f https://raw.githubusercontent.com/istio/istio/master/samples/sleep/sleep.yaml) -n foo
-```
-
-4. Successful deployment looks like this:
+1. Successful deployment looks like this:
 
 ```sh
 $ kubectl get po -n foo
 NAME                       READY   STATUS    RESTARTS   AGE
-httpbin-7484c67b4d-8xf7q   2/2     Running     0        4m58s
-sleep-6b74fd544d-q64j8     2/2     Running     0        5m13s
+httpbin-5f6bf4d4d9-5jxj8   3/3     Running   0          30s
+sleep-57bc8d74fc-2lw4n     3/3     Running   0          7s
 ```
-5. Test pod resources:
+3. Test pod resources:
 
 ```sh
-$ kubectl exec "$(kubectl get pod -l app=sleep -n foo -o jsonpath={.items..metadata.name})" -c sleep -n foo -- curl -s http://httpbin.foo:8000/headers | grep X-Forwarded-Client-Cert
-    "X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/foo/sa/httpbin;Hash=cd5d0504234e80c701c4fe01ef49f3fe048a63d1cdd5b9ffe3dd67ae3d93396b;Subject=\"CN=spiffe://cluster.local/ns/foo/sa/sleep\";URI=spiffe://cluster.local/ns/foo/sa/sleep"
+$ kubectl exec "$(kubectl get pod -l app=sleep -o jsonpath={.items..metadata.name})" -c sleep -- curl -v -s http://httpbin.default:8000/headers | grep X-Forwarded-Client-Cert
+    "X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/default/sa/httpbin;Hash=2875ce095572f8a12b6080213f7789bfb699099b83e8ea2889a2d7b3eb9523e6;Subject=\"CN=SGX based workload,O=Intel(R) Corporation\";URI=spiffe://cluster.local/ns/default/sa/sleep"
 
 ```
 
@@ -84,7 +91,8 @@ The above `httpbin` and `sleep` applications have enabled SGX and store the priv
 # uninstall istio
 $ istioctl x uninstall --purge -y
 # delete workloads
-$ kubectl delete ns foo
+$ kubectl delete -f ./intel/yaml/sleep-sgx-mTLS.yaml
+$ kubectl delete -f ./intel/yaml/httpbin-sgx-mTLS.yaml
 ```
 
 ## See also
