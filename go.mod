@@ -13,7 +13,7 @@ replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.5
 replace github.com/envoyproxy/go-control-plane => github.com/intel/envoy-go-control-plane v0.10.3-0.20221221111055-37d3bcdf275e
 
 // Needed for QAT Private Key Provider API
-replace istio.io/api => github.com/intel/istio-api v0.0.0-20221220121607-f44007735636
+replace istio.io/api => github.com/intel/istio-api v0.0.0-20230129051623-9909d0041f17
 
 require (
 	cloud.google.com/go/compute v1.10.0
