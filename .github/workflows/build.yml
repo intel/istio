@@ -21,7 +21,7 @@ jobs:
       DOCKER_TARGETS: docker.pilot docker.istioctl docker.operator docker.install-cni
       TAG: ${{ github.base_ref || github.ref_name }} 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v3.3.0
 
     - name: Build Containers
       run: |
@@ -34,7 +34,7 @@ jobs:
         UPDATE_BRANCH: ${{ github.base_ref || github.ref_name }} 
 
     - name: Login to the container registry
-      uses: docker/login-action@v2
+      uses: docker/login-action@v2.1.0
       with:
         registry: ${{ env.HUB }}
         username: ${{ github.repository_owner }}
@@ -63,3 +63,8 @@ jobs:
         docker push ${HUB}/proxyv2:${TAG}
       env:
         TAG: ${{ github.ref_name }}
+    
+    - name: Cleanup Image Resources
+      if: always()
+      run: |
+        docker system prune -f && docker volume rm $(docker volume ls -q --filter dangling=true)
