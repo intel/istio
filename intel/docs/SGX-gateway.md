@@ -1,4 +1,4 @@
-# Istio gateway Private Key Protection with SGX
+# Istio Gateway Private Key Protection with SGX
 
 ## Introduction
 
