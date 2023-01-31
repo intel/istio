@@ -7,7 +7,8 @@ Intel managed distribution of Istio is a project aiming to showcase and integrat
 * [TLS handshake acceleration with AVX512 (CryptoMB)](docs/CRYPTOMB.md)
 * [TLS handshake acceleration with QAT2.0](docs/QAT.md)
 * [HTTP data compression acceleration with QAT2.0](docs/QAT.md)
-* [Private key protection with SGX](docs/SGX-mTLS.md)
+* [Istio mTLS Private Key Protection with SGX](docs/SGX-mTLS.md)
+* [Istio Gateway Private Key Protection with SGX](docs/SGX-gateway.md)
 * [Grafana Dashboard](docs/Grafana-Dashboard.md)
 * [Excluding Istio interfaces for 5G core](docs/Excluding-Istio-interfaces-for-5G-core.md)
 
