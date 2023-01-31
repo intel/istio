@@ -20,8 +20,8 @@ This section covers how to install Istio mTLS private key protection with SGX
 1. Create sgx-signer (Refer to https://github.com/intel/trusted-certificate-issuer/blob/main/docs/istio-custom-ca-with-csr.md)
 
 ```sh
-export CA_SIGNER_NAME=sgx-signer
-cat << EOF | kubectl create -f -
+$ export CA_SIGNER_NAME=sgx-signer
+$ cat << EOF | kubectl create -f -
 apiVersion: tcs.intel.com/v1alpha1
 kind: TCSClusterIssuer
 metadata:
@@ -35,19 +35,32 @@ EOF
 
 ```sh
 # Get CA Cert and replace it in ./intel/yaml/intel-istio-sgx-mTLS.yaml
-kubectl get secret -n tcs-issuer ${CA_SIGNER_NAME}-secret -o jsonpath='{.data.tls\.crt}' |base64 -d | sed -e 's;\(.*\);        \1;g'
+$ kubectl get secret -n tcs-issuer ${CA_SIGNER_NAME}-secret -o jsonpath='{.data.tls\.crt}' |base64 -d | sed -e 's;\(.*\);        \1;g'
 ```
-2. Install Istio
+2. Build sds-server images
+
+Build from source code: 
+```sh
+# Getting the source code
+$ git clone https://github.com/istio-ecosystem/hsm-sds-server.git
+```
+
+```sh
+# Build image
+$ make docker
+```
+> NOTE: If you are using containerd as the container runtime, run `make ctr` to build the image instead.
+3. Install Istio
 
 > NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.16.1-intel.0` since only that contains Istio manifest enhancements for SGX mTLS.
 
 You can also customize the `intel-istio-sgx-mTLS.yaml` according to your needs. If you want do the quote verification, you can set the `NEED_QUOTE` env as `true`. And if you are using the TCS v1alpha1 api, you should set the `RANDOM_NONCE` as `false`.
 
 ```sh
-istioctl install -f ./intel/yaml/intel-istio-sgx-mTLS.yaml -y
+$ istioctl install -f ./intel/yaml/intel-istio-sgx-mTLS.yaml -y
 ```
 
-2. Verifiy the pods are running
+4. Verifiy the pods are running
 
 By deault, `Istio` will be installed in the `istio-system` namespce
 
@@ -64,14 +77,14 @@ istiod-6cf88b78dc-dthpw                 1/1     Running   0          70m
 1. Create sleep and httpbin deployment:
 > NOTE: If you want use the sds-custom injection template, you need to set the annotations `inject.istio.io/templates` for both `sidecar` and `custom`. And the ClusterRole is also required.
 ```sh
-kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/sleep-sgx-mTLS.yaml )
-kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/httpbin-sgx-mTLS.yaml )
+$ kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/sleep-sgx-mTLS.yaml )
+$ kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/httpbin-sgx-mTLS.yaml )
 ```
 
 1. Successful deployment looks like this:
 
 ```sh
-$ kubectl get po -n foo
+$ kubectl get po
 NAME                       READY   STATUS    RESTARTS   AGE
 httpbin-5f6bf4d4d9-5jxj8   3/3     Running   0          30s
 sleep-57bc8d74fc-2lw4n     3/3     Running   0          7s
