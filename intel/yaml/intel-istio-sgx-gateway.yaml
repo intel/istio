@@ -76,7 +76,7 @@ spec:
       imagePullPolicy: IfNotPresent
     sidecarInjectorWebhook:
       templates:
-        custom: |
+        sgx: |
           metadata:
             annotations:
               sgx.intel.com/quote-provider: aesmd
