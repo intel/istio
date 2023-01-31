@@ -68,12 +68,16 @@ $ kubectl get quoteattestations.tcs.intel.com -n default
 NAME                                                                            AGE
 sgxquoteattestation-istio-ingressgateway-55f8dbb66c-6qx2s-httpbin-testsds-com   4m36s
 ```
-Manually get the quoteattestation name via previous command
+Manually get the quoteattestation name via below command
 
 ```sh
 $ export QA_NAME=<YOUR QUOTEATTESTATION NAME>
 ```
 3. Prepare credential information:
+
+We use command line tools to read and write the QuoteAttestation manually. You get the tools, `km-attest` and `km-wrap`, provided by the [Intel® KMRA project](https://www.intel.com/content/www/us/en/developer/topic-technology/open/key-management-reference-application/overview.html).
+
+> NOTE: please use release version 2.2.1
 
 ```sh
 $ mkdir -p $HOME/sgx/gateway
