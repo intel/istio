@@ -123,7 +123,7 @@ $ curl -v -HHost:httpbin.example.com --resolve "httpbin.example.com:$SECURE_INGR
   --cacert $CREDENTIAL/example.com.crt "https://httpbin.example.com:$SECURE_INGRESS_PORT/status/418"
 ```
 It will be okay if got below response:
-[Response](./intel/image/gateway-test.png)
+[Response](../image/gateway-test.png)
 
 ## Cleaning Up
 ```sh
