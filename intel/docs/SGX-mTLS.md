@@ -74,8 +74,8 @@ istiod-6cf88b78dc-dthpw                 1/1     Running   0          70m
 
 ## Deploy sample application
 
-1. Create test namespace:
-
+1. Create sleep and httpbin deployment:
+> NOTE: If you want use the sds-custom injection template, you need to set the annotations `inject.istio.io/templates` for both `sidecar` and `sgx`. And the ClusterRole is also required.
 ```sh
 $ kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/sleep-sgx-mTLS.yaml )
 $ kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/httpbin-sgx-mTLS.yaml )
