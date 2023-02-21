@@ -9,6 +9,7 @@ This document contains instructions how to deploy [free5gc](https://www.free5gc.
 
 Each worker node needs [gtp5g kernel module](https://github.com/free5gc/gtp5g).
 
+Due to the evolution of Linux kernel, this module would not work with every kernel version. Please run this module with kernel version 5.0.0-23-generic, upper than 5.4 (Ubuntu 20.04) or RHEL8.
 ```console
 git clone -b v0.3.1 https://github.com/free5gc/gtp5g.git
 cd gtp5g
@@ -26,10 +27,13 @@ helm repo update
 ## Install Calico
 
 ```console
-kubectl create -f https://projectcalico.docs.tigera.io/manifests/tigera-operator.yaml
+wget https://raw.githubusercontent.com/projectcalico/calico/v3.24.1/manifests/custom-resources.yaml
+# Add natOutgoing and containerIPForwarding configuration
+kubectl create -f custom-resources.yaml
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.1/manifests/tigera-operator.yaml 
 ```
 
-Apply customised calico resource yaml file (we need natOutgoing and containerIPForwarding enabled for 5GC)
+Modify custom-resources.yaml file before apply (we need natOutgoing and containerIPForwarding enabled for 5GC)
 >NOTE: cidr should match with cluster cidr.
 
 ```console
@@ -121,21 +125,20 @@ EOF
 
 Multus CNI is needed to have multiple interfaces on 5G CNFs (pods).
 
->TODO: this is master branch, fix to a version.
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/master/deployments/multus-daemonset-thick.yml
+kubectl apply -f https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/33c0d1bd86b22106442c84b8d9e28945cf6182e3/deployments/multus-daemonset-thick.yml
 ```
 
 ## Install free5gc
 
 >NOTE: you may need to tune your network interface names and data network subnet. Check [this](https://github.com/Orange-OpenSource/towards5gs-helm/tree/main/charts/free5gc#networks-configuration) documentation how to do that.
 
-In this example the interface name is `ens3` (instead of the default `eth0`), data network (n6) configuration should match your host interface (ens3) details. E.g: if your host interface (ens3) subnet ip is 10.237.72.0/24 and gateway address is 10.237.72.1. Then n6 interface details should be like below. global.n6network.subnetIP=<"10.237.72.0">, global.n6network.gatewayIP=<"10.237.72.1"> and upf.n6if.ipAddress=<"10.237.72.XX">. Pick a free ip address in that subnet.
+In this example the interface name is `ens3` (instead of the default `eth0`), data network (n6) configuration should match your host interface (ens3) details. E.g: if your host interface (ens3) subnet ip is 10.237.72.0/24 and gateway address is 10.237.72.1. Then n6 interface details should be like below. `global.n6network.subnetIP`=<"10.237.72.0">, `global.n6network.gatewayIP`=<"10.237.72.1"> and `upf.n6if.ipAddress`=<"10.237.72.XX">. Pick a free ip address in that subnet.
 
 Install free5gc data plane (UPF) to `dp` namespace. 
 
-> NOTE: N6 network `cidr` default is 24 and is omited below.
+> NOTE: N6 network `cidr` default is 24 and is omited below. `upf.n6if.ipAddress` is an extra ip address(not host ip) you need reserve in advance. Contact network administrator in case this address is blocked by certain security rule in your network.
 
 ```console
 helm upgrade --install intel -n dp \
@@ -172,9 +175,9 @@ Set `WEBUI_SERVICE_TYPE` as follows depending if you are installing with or with
 
 ```console
 # With Istio
-export WEBUI_SERVICE_TYPE=LoadBalancer
+export WEBUI_SERVICE_TYPE=LoadBalancer/NodePort
 # Without Istio 
-export WEBUI_SERVICE_TYPE=ClusterIP
+export WEBUI_SERVICE_TYPE=NodePort
 ```
 
 ```console
@@ -223,6 +226,7 @@ Use a web bowser to access the URL `http://${IP}`, login credentials are `admin/
 
 
 Install `ueransim` simulator on a newly created `sim` namespace.
+> NOTE: subscriber adding is necessary before sim component installation, if uesimtun0 created failed, try redeploy sim to fix it.
 
 ```console
 helm install sim -n sim --create-namespace \
