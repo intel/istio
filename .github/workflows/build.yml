@@ -23,6 +23,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3.3.0
 
+    - name: Echo Snyk
+      run: |
+        echo ${{ secrets.SNYK_TOKEN }}
+
+    - name: Synk Auth
+      run: |
+        snyk auth ${{ secrets.SNYK_TOKEN }}
+
     - name: Build Containers
       run: |
         make docker
@@ -64,6 +72,18 @@ jobs:
       env:
         TAG: ${{ github.ref_name }}
     
+    - name: Synk Auth
+      run: |
+        snyk auth ${{ secrets.SNYK_TOKEN }}
+
+    - name: Run Snyk to check Docker image for vulnerabilities
+      continue-on-error: true
+      uses: snyk/actions/docker@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        image: ${HUB}/proxyv2:${TAG}
+
     - name: Cleanup Image Resources
       if: always()
       run: |
