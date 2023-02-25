@@ -77,10 +77,10 @@ require (
 	go.opentelemetry.io/proto/otlp v0.19.0
 	go.uber.org/atomic v1.10.0
 	go.uber.org/multierr v1.8.0
-	golang.org/x/net v0.0.0-20220921155015-db77216a4ee9
+	golang.org/x/net v0.7.0
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
-	golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8
+	golang.org/x/sys v0.5.0
 	golang.org/x/time v0.0.0-20220920022843-2ce7c2934d45
 	gomodules.xyz/jsonpatch/v3 v3.0.1
 	google.golang.org/api v0.96.0
@@ -242,8 +242,8 @@ require (
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/exp v0.0.0-20220921164117-439092de6870
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/term v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	gomodules.xyz/orderedmap v0.1.0 // indirect
