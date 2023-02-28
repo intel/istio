@@ -4,6 +4,8 @@ on:
   push:
     branches: [ 'release-*-intel' ]
   workflow_dispatch: #Trigger manually from repo
+  pull_request:
+    branches: [ release-*-intel ]
 
 permissions:
   contents: read
@@ -50,6 +52,7 @@ jobs:
           echo 'successfully updated docs'
 
       - name: Deploy docs to GH pages
+        if: ${{ github.ref_type == 'tag' }}
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -5,3 +5,4 @@
    docs/SGX-mTLS
    docs/SGX-gateway
    docs/Grafana-Dashboard
+   docs/release-notes
