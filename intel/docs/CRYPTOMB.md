@@ -10,7 +10,17 @@ CryptoMB means using Intel® Advanced Vector Extensions 512 (Intel® AVX-512) in
 
 ## Prerequisites
 
-- Kubernetes cluster with at least one node 3rd generation Intel Xeon Scalable processor server processors, or later.
+- Kubernetes cluster with at least one node 3rd generation Intel Xeon Scalable processor server processors, or later.  
+  If not all nodes that support Intel® AVX-512 in Kubernetes cluster, you need to add some labels to divide these two kinds of nodes manually or using [NFD](https://github.com/kubernetes-sigs/node-feature-discovery).  
+  And the following instructions are required to use CryptoMB:
+  - BMI2
+  - AVX512F
+  - AVX512DQ
+  - AVX512BW
+  - AVX512IFMA
+  - AVX512VBMI2
+  - AVX512_ENABLEDBYOS
+
 - Istio 1.14, or later
 
 ## Install
