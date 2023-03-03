@@ -106,7 +106,7 @@ spec:
               - name: NEED_QUOTE
                 value: "false"
               - name: RANDOM_NONCE
-                value: "true"
+                value: "false"
               - name: POD_NAME
                 valueFrom:
                   fieldRef:
