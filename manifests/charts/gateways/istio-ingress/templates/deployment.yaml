@@ -88,6 +88,9 @@ spec:
             privileged: true
 {{- end }}
       containers:
+{{- if $gateway.additionalContainers }}
+{{ toYaml $gateway.additionalContainers | indent 8 }}
+{{- end }}
         - name: istio-proxy
 {{- if contains "/" .Values.global.proxy.image }}
           image: "{{ .Values.global.proxy.image }}"
@@ -239,6 +242,10 @@ spec:
             mountPath: /etc/istio/proxy
           - name: config-volume
             mountPath: /etc/istio/config
+          - name: sgx-libraries
+            mountPath: /home/istio-proxy/sgx/lib
+          - name: ctk-tokens
+            mountPath: /opt/intel/cryptoapitoolkit/tokens
 {{- if eq .Values.global.pilotCertProvider "istiod" }}
           - mountPath: /var/run/secrets/istio
             name: istiod-ca-cert
@@ -270,9 +277,21 @@ spec:
             readOnly: true
           {{- end }}
           {{- end }}
-{{- if $gateway.additionalContainers }}
-{{ toYaml $gateway.additionalContainers | indent 8 }}
+{{- $enableSGX := false }}
+{{- range $container := $gateway.additionalContainers }}
+{{ if contains "sds" $container.name }}
+{{- $enableSGX = true }}
+{{ end }}
 {{- end }}
+{{- if $enableSGX }}
+          resources:
+            limits:
+              sgx.intel.com/enclave: 1
+              sgx.intel.com/epc: 1Mi
+            requests:
+              sgx.intel.com/enclave: 1
+              sgx.intel.com/epc: 1Mi
+{{- end}}
       volumes:
       - emptyDir: {}
         name: workload-socket
@@ -280,6 +299,10 @@ spec:
         name: credential-socket
       - emptyDir: {}
         name: workload-certs
+      - emptyDir: {}
+        name: sgx-libraries
+      - emptyDir: {}
+        name: ctk-tokens
 {{- if eq .Values.global.pilotCertProvider "istiod" }}
       - name: istiod-ca-cert
         configMap:
