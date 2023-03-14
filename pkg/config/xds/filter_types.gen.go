@@ -20,6 +20,7 @@
 package xds
 
 import (
+	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/compression/qatzip/compressor/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/config/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/filters/http/dynamo/v3"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/filters/http/golang/v3alpha"
@@ -44,6 +45,7 @@ import (
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/network/connection_balance/dlb/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/cryptomb/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/qat/v3alpha"
+	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/private_key_providers/sgx/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/regex_engines/hyperscan/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/contrib/envoy/extensions/vcl/v3alpha"
 	_ "github.com/envoyproxy/go-control-plane/envoy/admin/v2alpha"
@@ -199,6 +201,7 @@ import (
 	_ "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/cdn_loop/v3"
 	_ "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/composite/v3"
 	_ "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/compressor/v3"
+	_ "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/connect_grpc_bridge/v3"
 	_ "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/cors/v3"
 	_ "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/csrf/v3"
 	_ "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/custom_response/v3"
