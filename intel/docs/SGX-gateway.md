@@ -9,15 +9,51 @@ Protecting Istio gateway private keys with Intel® SGX enhances the service mesh
 Prerequisites for using Istio gateway private key protection with SGX:
 
 - Kubernetes cluster with one or more nodes with Intel® [SGX](https://software.intel.com/content/www/us/en/develop/topics/software-guard-extensions.html) supported hardware
-- [Intel® SGX device plugin](https://github.com/intel/intel-device-plugins-for-kubernetes/blob/main/cmd/sgx_plugin/README.md) for Kubernetes
-- [Intel® SGX AESM daemon](https://github.com/intel/linux-sgx#install-the-intelr-sgx-psw)
+- [Intel® SGX device plugin for Kubernetes](https://github.com/intel/intel-device-plugins-for-kubernetes/blob/main/cmd/sgx_plugin/README.md)
 - Linux kernel version 5.11 or later on the host (in tree SGX driver)
 - [trusted-certificate-issuer](https://github.com/intel/trusted-certificate-issuer)
+- [Intel® SGX AESM daemon](https://github.com/intel/linux-sgx#install-the-intelr-sgx-psw)
+- [Intel® KMRA service](https://www.intel.com/content/www/us/en/developer/topic-technology/open/key-management-reference-application/overview.html)
+- [Intel® Linux SGX](https://github.com/intel/linux-sgx) and [cripto-api-toolkit](https://github.com/intel/crypto-api-toolkit) in the host (optional, only needed if you want to build sds-server image locally)
+> NOTE: The KMRA service and AESM daemon is also optional, needs to be set up only when remote attestaion required, which can be set through `NEED_QUOTE` flag in the chart.
 
 ## Installation
 
 This section covers how to install Istio gateway private key protection with SGX
-1. Install Istio
+1. Create sgx-signer (Refer to https://github.com/intel/trusted-certificate-issuer/blob/main/docs/istio-custom-ca-with-csr.md)
+```sh
+$ export CA_SIGNER_NAME=sgx-signer
+$ cat << EOF | kubectl create -f -
+apiVersion: tcs.intel.com/v1alpha1
+kind: TCSClusterIssuer
+metadata:
+    name: $CA_SIGNER_NAME
+spec:
+    secretName: ${CA_SIGNER_NAME}-secret
+    # If using quoteattestaion, set selfSign as false
+    # selfSign: false
+EOF
+```
+
+```sh
+# Get CA Cert and replace it in ./intel/yaml/intel-istio-sgx-mTLS.yaml
+$ kubectl get secret -n tcs-issuer ${CA_SIGNER_NAME}-secret -o jsonpath='{.data.tls\.crt}' |base64 -d | sed -e 's;\(.*\);        \1;g'
+```
+2. Build sds-server images
+
+Build from source code: 
+```sh
+# Getting the source code
+$ git clone https://github.com/istio-ecosystem/hsm-sds-server.git
+```
+
+```sh
+# Build image
+$ make docker
+```
+> NOTE: If you are using containerd as the container runtime, run `make ctr` to build the image instead.
+
+3. Install Istio
 
 > NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.17.1-intel.0` since only that contains Istio manifest enhancements for SGX mTLS.
 You can also customize the `intel-istio-sgx-gateway.yaml` according to your needs. If you want do the quote verification, you can set the `NEED_QUOTE` env as `true`. And if you are using the TCS v1alpha1 api, you should set the `RANDOM_NONCE` as `false`.
@@ -26,7 +62,7 @@ You can also customize the `intel-istio-sgx-gateway.yaml` according to your need
 istioctl install -f ./intel/yaml/intel-istio-sgx-gateway.yaml -y
 ```
 
-2. Verifiy the pods are running
+4. Verifiy the pods are running
 
 By deault, `Istio` will be installed in the `istio-system` namespce
 
@@ -44,8 +80,9 @@ istiod-65db6d8666-jgmf7                 1/1     Running   0          75s
 > NOTE: If you want use the sds-custom injection template, you need to set the annotations `inject.istio.io/templates` for both `sidecar` and `sgx`. And the ClusterRole is also required.
 ```sh
 kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/httpbin-sgx-gateway.yaml )
-kubectl apply -f <(istioctl kube-inject -f ./intel/yaml/httpbinGW-sgx-gateway.yaml )
+kubectl apply -f ./intel/yaml/httpbinGW-sgx-gateway.yaml
 ```
+Note: please execute `kubectl apply -f ./intel/yaml/gateway-clusterrole.yaml` to make sure that the ingress gateway has enough privilege.
 2. Successful deployment looks like this:
 
 Verify the httpbin pod:
