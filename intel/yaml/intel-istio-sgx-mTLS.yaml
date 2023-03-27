@@ -14,8 +14,6 @@ spec:
             value: tcsclusterissuer.tcs.intel.com/sgx-signer
           - name: CERT_SIGNER_DOMAIN
             value: tcsclusterissuer.tcs.intel.com
-          - name: EXTERNAL_CA
-            value: ISTIOD_RA_KUBERNETES_API
           - name: PILOT_CERT_PROVIDER
             value: k8s.io/tcsclusterissuer.tcs.intel.com/sgx-signer
         overlays:
@@ -74,6 +72,9 @@ spec:
         certSigners:
         - tcsclusterissuer.tcs.intel.com/sgx-signer
   values:
+    pilot:
+      env:
+        EXTERNAL_CA: ISTIOD_RA_KUBERNETES_API
     global:
       imagePullPolicy: IfNotPresent
     sidecarInjectorWebhook:
@@ -127,8 +128,8 @@ spec:
                 value: tcsclusterissuer.tcs.intel.com/sgx-signer
               - name: CERT_SIGNER_DOMAIN
                 value: tcsclusterissuer.tcs.intel.com
-              - name: EXTERNAL_CA
-                value: ISTIOD_RA_KUBERNETES_API
+                # - name: EXTERNAL_CA
+                #   value: ISTIOD_RA_KUBERNETES_API
               - name: PILOT_CERT_PROVIDER
                 value: k8s.io/tcsclusterissuer.tcs.intel.com/sgx-signer
               volumeMounts:
@@ -168,8 +169,8 @@ spec:
                 value: tcsclusterissuer.tcs.intel.com/sgx-signer
               - name: CERT_SIGNER_DOMAIN
                 value: tcsclusterissuer.tcs.intel.com
-              - name: EXTERNAL_CA
-                value: ISTIOD_RA_KUBERNETES_API
+                # - name: EXTERNAL_CA
+                #   value: ISTIOD_RA_KUBERNETES_API
               - name: PILOT_CERT_PROVIDER
                 value: k8s.io/tcsclusterissuer.tcs.intel.com/sgx-signer
             volumes:

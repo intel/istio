@@ -14,8 +14,6 @@ spec:
             value: clusterissuers.cert-manager.io/istio-system
           - name: CERT_SIGNER_DOMAIN
             value: clusterissuers.cert-manager.io
-          - name: EXTERNAL_CA
-            value: ISTIOD_RA_KUBERNETES_API
           - name: PILOT_CERT_PROVIDER
             value: k8s.io/clusterissuers.cert-manager.io/istio-system
         overlays:
@@ -66,6 +64,9 @@ spec:
         certSigners:
         - clusterissuers.cert-manager.io/istio-system
   values:
+    pilot:
+      env:
+        EXTERNAL_CA: ISTIOD_RA_KUBERNETES_API
     global:
       imagePullPolicy: IfNotPresent 
     sidecarInjectorWebhook:
@@ -119,8 +120,8 @@ spec:
                 value: clusterissuers.cert-manager.io/istio-system
               - name: CERT_SIGNER_DOMAIN
                 value: clusterissuers.cert-manager.io
-              - name: EXTERNAL_CA
-                value: ISTIOD_RA_KUBERNETES_API
+                # - name: EXTERNAL_CA
+                #   value: ISTIOD_RA_KUBERNETES_API
               - name: PILOT_CERT_PROVIDER
                 value: k8s.io/clusterissuers.cert-manager.io/istio-system
               volumeMounts:
@@ -160,8 +161,8 @@ spec:
                 value: clusterissuers.cert-manager.io/istio-system
               - name: CERT_SIGNER_DOMAIN
                 value: clusterissuers.cert-manager.io
-              - name: EXTERNAL_CA
-                value: ISTIOD_RA_KUBERNETES_API
+                # - name: EXTERNAL_CA
+                #   value: ISTIOD_RA_KUBERNETES_API
               - name: PILOT_CERT_PROVIDER
                 value: k8s.io/clusterissuers.cert-manager.io/istio-system
             volumes:
@@ -219,8 +220,8 @@ spec:
               value: clusterissuers.cert-manager.io/istio-system
             - name: CERT_SIGNER_DOMAIN
               value: clusterissuers.cert-manager.io
-            - name: EXTERNAL_CA
-              value: ISTIOD_RA_KUBERNETES_API
+              # - name: EXTERNAL_CA
+              #   value: ISTIOD_RA_KUBERNETES_API
             - name: PILOT_CERT_PROVIDER
               value: k8s.io/clusterissuers.cert-manager.io/istio-system
             volumeMounts:
