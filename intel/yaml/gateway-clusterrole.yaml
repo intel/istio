@@ -1,0 +1,35 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: istio-ingressgateway
+  namespace: istio-system
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.istio.io"]
+  resources: ["gateways"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["tcs.intel.com"]
+  resources: ["quoteattestations"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["certificates.k8s.io"]
+  resources: ["certificatesigningrequests", "certificatesigningrequests/approval", "certificatesigningrequests/status"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["certificates.k8s.io"]
+  resourceNames: ["clusterissuers.cert-manager.io/*", "tcsclusterissuer.tcs.intel.com/*", "tcsissuer.tcs.intel.com/*"]
+  resources: ["signers"]
+  verbs: ["approve"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: istio-ingressgateway
+subjects:
+- kind: ServiceAccount
+  name: istio-ingressgateway-service-account
+  namespace: istio-system
+roleRef:
+  kind: ClusterRole
+  name: istio-ingressgateway
+  apiGroup: rbac.authorization.k8s.io
