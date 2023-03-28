@@ -24,4 +24,4 @@ Intel managed distribution of Istio is a project aiming to showcase and integrat
 Use the follwoing command for basic installation:
 
 ```bash
-istioctl install --set hub=docker.io/intel --set tag=1.17.1-intel.0
+istioctl install --set hub=docker.io/intel --set tag=1.17.1-intel.1
