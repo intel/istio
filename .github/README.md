@@ -97,3 +97,7 @@ Upstream [README](/README.md).
 
 This version of the software is pre-production release and is meant for
 evaluation and trial purposes only.
+
+## License
+
+All of the source code required to build Intel managed distribution of Istio is available under Open Source licenses. The source code files identify the external Go modules that are used. Binaries are distributed as container images on DockerHub. Those images contain licenses text file `LICENSES.txt`. 
