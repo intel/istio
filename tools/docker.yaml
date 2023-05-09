@@ -37,7 +37,7 @@ images:
   - ${TARGET_OUT_LINUX}/release/stats-filter.compiled.wasm
   - ${TARGET_OUT_LINUX}/release/metadata-exchange-filter.wasm
   - ${TARGET_OUT_LINUX}/release/metadata-exchange-filter.compiled.wasm
-  - licenses.txt
+  - LICENSES.txt
   targets:
   - ${TARGET_OUT_LINUX}/pilot-agent
 - name: pilot
@@ -45,14 +45,14 @@ images:
   files:
   - tools/packaging/common/envoy_bootstrap.json
   - tools/packaging/common/gcp_envoy_bootstrap.json
-  - licenses.txt
+  - LICENSES.txt
   targets:
   - ${TARGET_OUT_LINUX}/pilot-discovery
 
 - name: istioctl
   dockerfile: istioctl/docker/Dockerfile.istioctl
   files:
-  - licenses.txt
+  - LICENSES.txt
   targets:
   - ${TARGET_OUT_LINUX}/istioctl
 

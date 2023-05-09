@@ -40,7 +40,6 @@ bin/istioctl
 # Avoid accidental istio.VERSION changes
 istio.VERSION
 LICENSES.txt
-licenses.txt
 # Proxy generated proxy config in integration test
 tests/integration/component/proxy/envoy.conf
 **/var/run/secrets/
