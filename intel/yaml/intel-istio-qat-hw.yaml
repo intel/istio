@@ -10,7 +10,7 @@ metadata:
   namespace: istio-system
 spec:
   profile: default
-  tag: 1.17.1-intel.1
+  tag: 1.17.1-intel.2
   hub: docker.io/intel
 
   components:

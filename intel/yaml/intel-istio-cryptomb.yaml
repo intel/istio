@@ -6,7 +6,7 @@ apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 spec:
   profile: default
-  tag: 1.17.1-intel.1
+  tag: 1.17.1-intel.2
   hub: docker.io/intel
   meshConfig:
     defaultConfig:

@@ -55,7 +55,7 @@ $ make docker
 
 3. Install Istio
 
-> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.17.1-intel.1` since only that contains Istio manifest enhancements for SGX mTLS.
+> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.17.1-intel.2` since only that contains Istio manifest enhancements for SGX mTLS.
 You can also customize the `intel-istio-sgx-gateway.yaml` according to your needs. If you want do the quote verification, you can set the `NEED_QUOTE` env as `true`. And if you are using the TCS v1alpha1 api, you should set the `RANDOM_NONCE` as `false`.
 
 ```sh

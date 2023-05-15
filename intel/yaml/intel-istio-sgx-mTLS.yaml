@@ -5,7 +5,7 @@ metadata:
 spec:
   profile: default
   hub: "docker.io/intel"
-  tag: "1.17.1-intel.1"
+  tag: "1.17.1-intel.2"
   components:
     pilot:
       k8s:
