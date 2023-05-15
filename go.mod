@@ -10,9 +10,9 @@ replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.5
 
 // Needed for QATzip compression library and SGX private key provider go
 // bindings
-replace github.com/envoyproxy/go-control-plane => github.com/intel/envoy-go-control-plane v0.10.3-0.20230308072720-7719a743a1e8
+replace github.com/envoyproxy/go-control-plane => github.com/intel/envoy-go-control-plane v0.10.3-0.20230505013345-c93aa5bf75c9
 
-replace istio.io/api => github.com/intel/istio-api v0.0.0-20230217221049-9d422bf48675
+replace istio.io/api => github.com/intel/istio-api v0.0.0-20230505013544-8390cb464a3c
 
 require (
 	cloud.google.com/go/compute/metadata v0.2.3

@@ -838,10 +838,10 @@ github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANyt
 github.com/inconshreveable/mousetrap v1.0.1/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
-github.com/intel/envoy-go-control-plane v0.10.3-0.20230308072720-7719a743a1e8 h1:LVSuIX78mSI80crjyOiiruH1p+i48mqJvn9dgKxrG4k=
-github.com/intel/envoy-go-control-plane v0.10.3-0.20230308072720-7719a743a1e8/go.mod h1:84cjSkVxFD9Pi/gvI5AOq5NPhGsmS8oPsJLtCON6eK8=
-github.com/intel/istio-api v0.0.0-20230217221049-9d422bf48675 h1:gMwdXNwhXZs6m+VFO0c5K7cmPZiXPhLPgyIJtBlVjDg=
-github.com/intel/istio-api v0.0.0-20230217221049-9d422bf48675/go.mod h1:owGDRg9uqMob8CN1gxaOzk6nJxnbT8wrP7PmggpJHHY=
+github.com/intel/envoy-go-control-plane v0.10.3-0.20230505013345-c93aa5bf75c9 h1:FpyGFqc0bdQoMateuc1QSPdUJhFs2gNzv+VpHHSJmJc=
+github.com/intel/envoy-go-control-plane v0.10.3-0.20230505013345-c93aa5bf75c9/go.mod h1:84cjSkVxFD9Pi/gvI5AOq5NPhGsmS8oPsJLtCON6eK8=
+github.com/intel/istio-api v0.0.0-20230505013544-8390cb464a3c h1:L2Eu/bCbuxnAcoCHKaJAyqsd0lrozMFd0OC4Xo1updE=
+github.com/intel/istio-api v0.0.0-20230505013544-8390cb464a3c/go.mod h1:owGDRg9uqMob8CN1gxaOzk6nJxnbT8wrP7PmggpJHHY=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/jonboulle/clockwork v0.3.0 h1:9BSCMi8C+0qdApAp4auwX0RkLGUjs956h0EkuQymUhg=
