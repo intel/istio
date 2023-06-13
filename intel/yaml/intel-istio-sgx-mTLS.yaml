@@ -19,24 +19,143 @@ spec:
     enableTracing: true
     defaultConfig:
       proxyMetadata:
-        # Enable basic DNS proxying
-        ISTIO_META_DNS_CAPTURE: "true"
-        # Enable automatic address allocation, optional
-        ISTIO_META_DNS_AUTO_ALLOCATE: "true"
-        # RSA or ECDSA 
-        # ECC_SIGNATURE_ALGORITHM: ECDSA
-
-  components:
-    pilot:
-      k8s:
-        imagePullPolicy: IfNotPresent
-    ingressGateways:
-    - name: istio-ingressgateway
-      enabled: true
-      k8s:
-        imagePullPolicy: IfNotPresent
-    egressGateways:
-    - name: istio-egressgateway
-      enabled: true
-      k8s:
-        imagePullPolicy: IfNotPresent
+        PROXY_CONFIG_XDS_AGENT: "true"
+        ISTIO_META_CERT_SIGNER: sgx-signer
+    caCertificates:
+      - pem: |
+          -----BEGIN CERTIFICATE-----
+          MIIEbDCCAtSgAwIBAgIIOANo/iO8CsMwDQYJKoZIhvcNAQELBQAwVDEdMBsGA1UE
+          ChMUSW50ZWwoUikgQ29ycG9yYXRpb24xMzAxBgNVBAMTKlNHWCBzZWxmLXNpZ25l
+          ZCByb290IGNlcnRpZmljYXRlIGF1dGhvcml0eTAeFw0yMjEyMTYwNjQ3MjdaFw0y
+          MzEyMTYwNjQ3MjdaMFQxHTAbBgNVBAoTFEludGVsKFIpIENvcnBvcmF0aW9uMTMw
+          MQYDVQQDEypTR1ggc2VsZi1zaWduZWQgcm9vdCBjZXJ0aWZpY2F0ZSBhdXRob3Jp
+          dHkwggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGKAoIBgQDyUFLLNrGYUBmFFYst
+          5seTG9HCevFLtETcA6qgUheHbx65bjTd/ohjHtv/Gy3dqk4HC4mhr/hiurzTDgR4
+          X00IhLd0uNtfn2Z3+XOkBHn5Rurtj1ZZ+f3jSVAGJF4bzhBS2zsUJYDw8XCMpdPq
+          fQo89fQ4OW2zOMgyOaoE4tKrwDT+3jBKygA22l2rnUOXYtKbPI8mOsK7BRuIWN4G
+          9ECVNEXsozLafhd8jXuCP89eTII0qdw9mJTYsp0A5U3R0rJ6Xs0qul75lAHSLY0G
+          WlG9c+n8G1lXBXxzvoT2kdCtMyRoiJvAT5hNzgTEeuxkQxiSRL5MVq+Qum9EUS8u
+          9NYK13PoDPHUMejfHlE+n8bs7dAQ1rIJHvuO8uHv49cp5/ta0Bd8ggNvNAubMw/A
+          9iQYNNuwbQ2EvaEID02n175xefVEUv/lUfyZ7Qu2CEcN+FfXdCj38DbrZ/Z+hnZv
+          oPqFxobf3wW6zFJXMGNlhJfyMmd+OO8+tUPTXtKZu0sbx2ECAwEAAaNCMEAwDgYD
+          VR0PAQH/BAQDAgKkMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFIC7hkPuHPAu
+          c78eqYeOiQ2XdtrYMA0GCSqGSIb3DQEBCwUAA4IBgQA6mcyDUp3ForwHNxWN9gqK
+          93AEuDAGNI6HGzz5lt/Bfy7am23/Af/WttHtrTeZd8AU32wjH2Tn5x4aLwaDw5QR
+          D2EK2lU5ziBaoQicjtI512Y0AEJodFiXvXztixhsGZdLtifbuNOlXZ4EoWV0g6e/
+          XEko2MQQ9YLD+WbYhlsc2WRux95N25rJU5jzSUT1Y32W9/ODmuA7jzrGmYKWzMLU
+          NKNj2bXR4tnLTHduwHD1pCohP5qLkYBLNY720hltZamQl2LPciGCprnnHQrUKKyC
+          fuvTib/RCS5/qUry58cHfSpdQis1A7MlQspiGggFQf7pqsVfhZtoY1SVvOx/Dzyo
+          9Agfb0dzE11n8UjXoDQwAmdeWLbfw6R3uLVtPlwdgq7n4JNE6XVFBxWwLd+Pt/Zo
+          UTvTPM8ezRiVplq1beuQXVRHH1Bzxedq1R02v/DLkH0dMeSyMU1VS3+HRgOeHXWr
+          ccpv5ngljFfyux9TknYH8Eb85N1Io7JA/Vm9eYv9MJE=
+          -----END CERTIFICATE-----
+        certSigners:
+        - tcsclusterissuer.tcs.intel.com/sgx-signer
+  values:
+    global:
+      imagePullPolicy: IfNotPresent
+    sidecarInjectorWebhook:
+      templates:
+        sgx: |
+          metadata:
+            annotations:
+              sgx.intel.com/quote-provider: aesmd
+          spec:
+            containers:
+            - name: sdsserver
+              image: sds-server/sds-server:latest
+              imagePullPolicy: IfNotPresent
+              lifecycle:
+                postStart:
+                  exec:
+                    command: ["/bin/sh", "-c", "./home/istio-proxy/prepare.sh"]
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 500Mi
+                  sgx.intel.com/enclave: 1
+                  sgx.intel.com/epc: 1Mi
+                requests:
+                  cpu: 200m
+                  memory: 300Mi
+                  sgx.intel.com/enclave: 1
+                  sgx.intel.com/epc: 1Mi    
+              env:
+              - name: NEED_QUOTE
+                value: "false"
+              - name: RANDOM_NONCE
+                value: "false"
+              - name: POD_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.name
+              - name: POD_NAMESPACE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
+              - name: SERVICE_ACCOUNT
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.serviceAccountName
+              {{- with (valueOrDefault .MeshConfig.TrustDomain .Values.global.trustDomain)  }}
+              - name: TRUST_DOMAIN
+                value: "{{ . }}"
+              {{- end }}
+              - name: CERT_SIGNER_NAME
+                value: tcsclusterissuer.tcs.intel.com/sgx-signer
+              - name: CERT_SIGNER_DOMAIN
+                value: tcsclusterissuer.tcs.intel.com
+              - name: EXTERNAL_CA
+                value: ISTIOD_RA_KUBERNETES_API
+              - name: PILOT_CERT_PROVIDER
+                value: k8s.io/tcsclusterissuer.tcs.intel.com/sgx-signer
+              volumeMounts:
+              - name: workload-socket
+                mountPath: /var/run/secrets/workload-spiffe-uds
+              - name: credential-socket
+                mountPath: /var/run/secrets/credential-uds
+              - name: sgx-libraries
+                mountPath: /home/istio-proxy/sgx/lib
+              - name: istio-podinfo
+                mountPath: /etc/istio/pod
+              - name: istio-token
+                mountPath: /var/run/secrets/tokens
+              - name: istiod-ca-cert
+                mountPath: /var/run/secrets/istio
+              - name: istio-data
+                mountPath: /var/lib/istio/data
+              - name: ctk-tokens
+                mountPath: /opt/intel/cryptoapitoolkit/tokens
+            - name: istio-proxy
+              volumeMounts:
+              - name: credential-socket
+                mountPath: /var/run/secrets/credential-uds
+              - name: sgx-libraries
+                mountPath: /home/istio-proxy/sgx/lib
+              - name: ctk-tokens
+                mountPath: /opt/intel/cryptoapitoolkit/tokens
+              resources:
+                limits:
+                  sgx.intel.com/enclave: 1
+                  sgx.intel.com/epc: 1Mi
+                requests:
+                  sgx.intel.com/enclave: 1
+                  sgx.intel.com/epc: 1Mi 
+              env:
+              - name: CERT_SIGNER_NAME
+                value: tcsclusterissuer.tcs.intel.com/sgx-signer
+              - name: CERT_SIGNER_DOMAIN
+                value: tcsclusterissuer.tcs.intel.com
+              - name: EXTERNAL_CA
+                value: ISTIOD_RA_KUBERNETES_API
+              - name: PILOT_CERT_PROVIDER
+                value: k8s.io/tcsclusterissuer.tcs.intel.com/sgx-signer
+            volumes:
+            - emptyDir:
+              name: workload-socket
+            - emptyDir:
+              name: credential-socket
+            - emptyDir:
+              name: sgx-libraries
+            - emptyDir:
+              name: ctk-tokens
