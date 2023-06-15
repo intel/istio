@@ -3,7 +3,7 @@ kind: IstioOperator
 spec:
   profile: minimal
   hub: "docker.io/intel"
-  tag: "1.15.1-intel.0"
+  tag: "1.18.0-intel.0"
   values:
     global:
       proxy:

@@ -23,7 +23,7 @@ This section covers how to install Istio mTLS private key protection with SGX
 
 1. Install Istio
 
-> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.15.1-intel.0` since only that contains Istio manifest enhancements for SGX mTLS.
+> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.18.0-intel.0` since only that contains Istio manifest enhancements for SGX mTLS.
 
 You can also customize the `intel-istio-sgx-mTLS.yaml` according to your needs. If you want to enable sgx in sidecars or gateway, you can set the `sgx.enable` flag as `true`. And if you want do the quote verification, you should enable the `certExtensionValidationEnabled` flag.
 
