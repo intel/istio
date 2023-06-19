@@ -7,20 +7,21 @@ Intel managed distribution of Istio is a project aiming to showcase and integrat
 * [TLS handshake acceleration with AVX512 (CryptoMB)](docs/CRYPTOMB.md)
 * [TLS handshake acceleration with QAT2.0](docs/QAT.md)
 * [HTTP data compression acceleration with QAT2.0](docs/QAT.md)
-* [Private key protection with SGX](docs/SGX-mTLS.md)
+* [Istio mTLS Private Key Protection with SGX](docs/SGX-mTLS.md)
+* [Istio Gateway Private Key Protection with SGX](docs/SGX-gateway.md)
 * [Grafana Dashboard](docs/Grafana-Dashboard.md)
 * [Excluding Istio interfaces for 5G core](docs/Excluding-Istio-interfaces-for-5G-core.md)
 
 ## Supported versions
-* Kubernetes v1.24
-* Istio v1.15
+* Kubernetes v1.24 or later
+* Istio v1.18
 * cert-manager v1.7 or later
 * Linux kernel 5.18 or later
-* Intel Device Plugins for Kubernetes v0.24
+* Intel Device Plugins for Kubernetes v0.24 or later
 
 ## Install
 
 Use the follwoing command for basic installation:
 
 ```bash
-istioctl install --set hub=docker.io/intel --set tag=1.15.1-intel.0
+istioctl install --set hub=docker.io/intel --set tag=1.18.0-intel.0
