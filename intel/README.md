@@ -10,6 +10,7 @@ Intel managed distribution of Istio is a project aiming to showcase and integrat
 * [Private key protection with SGX](docs/SGX-mTLS.md)
 * [Grafana Dashboard](docs/Grafana-Dashboard.md)
 * [Excluding Istio interfaces for 5G core](docs/Excluding-Istio-interfaces-for-5G-core.md)
+* [Use Meshery to deploy and manage Istio with Intel Features](docs/Meshery.md)
 
 ## Supported versions
 * Kubernetes v1.24
