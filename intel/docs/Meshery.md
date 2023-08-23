@@ -14,6 +14,8 @@ Meshery offers us with an intuitive, visual, and convenient way to deploy Intel 
 
 ## Install Meshery
 
+You can use one of below 3 options:
+
 **Install on Kubernetes**:
 
 ```
@@ -50,8 +52,13 @@ Meshery attempts to auto detect your kubeconfig if it is stored in the default p
 
 Meshery Designs contain patterns and configurations that describe how we will deploy Istio.
 Currently, we have published two Meshery Designs in Meshery Catalog website which you can import and deploy using Meshery directly:
-- [CRYPTOMB-TLS-HANDSHAKE-ACCELERATION-FOR-ISTIO](https://raw.githubusercontent.com/meshery/meshery.io/master/catalog/28715e69-c6c1-4f96-bfa2-05113b00bae0.yaml)
-- [QAT-TLS-HANDSHAKE-ACCELERATION-FOR-ISTIO](https://raw.githubusercontent.com/meshery/meshery.io/master/catalog/05e97933-90a6-4dd3-9b29-18e78eb4d3f1.yaml)
+- [CRYPTOMB-TLS-HANDSHAKE-ACCELERATION-FOR-ISTIO](https://raw.githubusercontent.com/meshery/meshery.io/master/catalog/28715e69-c6c1-4f96-bfa2-05113b00bae0.yaml): 
+
+    CryptoMB means using Intel® Advanced Vector Extensions 512 (Intel® AVX-512) instructions using a SIMD (single instruction, multiple data) mechanism. Up to eight RSA or ECDSA operations are gathered into a buffer and processed at the same time, providing potentially improved performance. Intel AVX-512 instructions are available on recently launched 3rd generation Intel Xeon Scalable processor server processors, or later. With this Meshery Design, you can install Istio and enable CryptoMB to achieve performance improvements and accelerated handshakes.
+
+- [QAT-TLS-HANDSHAKE-ACCELERATION-FOR-ISTIO](https://raw.githubusercontent.com/meshery/meshery.io/master/catalog/05e97933-90a6-4dd3-9b29-18e78eb4d3f1.yaml):
+    
+    Intel® QuickAssist Technology (QAT) provides hardware acceleration to offload the security and authentication burden from the CPU, significantly improving the performance and efficiency of standard platform solutions. With this Meshery design, you can install the Intel® QAT Device Plugin and Istio and enable QAT cryptographic acceleration for the TLS handshake in the Istio ingressgateway. This design is only available for Intel® Xeon CPUs with QAT devices enabled.
 
 ### Import Meshery Design
 
@@ -67,7 +74,7 @@ After importing Meshery Design, you can deploy it in the current cluster:
 
 <img src="./images/design-deployment.png" width="600px">
 
-This design will install Istio using Istio Operator and enable CryptoMB TLS Handshake acceleration in Istio Ingressgateway.
+It will install Istio using Istio Operator and enable CryptoMB TLS Handshake acceleration in Istio Ingressgateway.
 
 <img src="./images/design-check.png" width="600px">
 
