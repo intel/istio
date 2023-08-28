@@ -10,7 +10,7 @@ Meshery offers us with an intuitive, visual, and convenient way to deploy Intel 
 
 ## Architecture
 
-<img src="./images/Architecture.png" width="600px">
+![Architecture](./images/Architecture.png)
 
 ## Install Meshery
 
@@ -40,13 +40,13 @@ $ docker compose -f ~/.meshery/meshery.yaml up
 
 Visit Meshery’s web-based user interface http://<hostname>:9081. 
 
-<img src="./images/acess-meshery.png" width="600px">
+![Access-meshery](./images/acess-meshery.png)
 
 ## Configure Connection to Kubernetes
 
 Meshery attempts to auto detect your kubeconfig if it is stored in the default path ($HOME/.kube) on your system. In most deployments, Meshery will automatically connect to your Kubernetes cluster. If your config has not been auto-detected, or you want to connect remote Kubernetes cluster, you can manually locate and upload your kube config file and select the context name (docker-desktop, kind-clsuter, minikube etc.)
 
-<img src="./images/connect-k8s-cluster.png" width="600px">
+![Connect-k8s-cluster](./images/connect-k8s-cluster.png)
 
 ## Meshery Design 
 
@@ -64,7 +64,7 @@ Currently, we have published two Meshery Designs in Meshery Catalog website whic
 
 Take the CryptoMB TLS Handshake acceleration as example, you can import its url directly from Meshery Design page:
 
-<img src="./images/meshery-design.png" width="600px">
+![meshery-design](./images/meshery-design.png)
 
 Or, you can download the design from the url and edit it as you like, then upload it to Meshery.
 
@@ -72,18 +72,18 @@ Or, you can download the design from the url and edit it as you like, then uploa
 
 After importing Meshery Design, you can deploy it in the current cluster: 
 
-<img src="./images/design-deployment.png" width="600px">
+![design-deployment](./images/design-deployment.png)
 
 It will install Istio using Istio Operator and enable CryptoMB TLS Handshake acceleration in Istio Ingressgateway.
 
-<img src="./images/design-check.png" width="600px">
+![desing-check](./images/design-check.png)
 
 ## Applications/Backend Server
 
 You can configure automatic sidecar injection for a namespace. Then, you can deploy sample applications:
 
-<img src="./images/automatic-sidecar-injection.png" width="600px">
-<img src="./images/sample-application.png" width="600px">
+![automatic-sidecar-injection](./images/automatic-sidecar-injection.png)
+![sample-application.png](./images/sample-application.png)
 
 ## Run a performance test
 
@@ -95,7 +95,7 @@ On the navigation menu, click on performance.
 
 This will open the performance management dashboard and you can run the performance test with your own profile:
 
-<img src="./images/performance-profile.png" width="600px">
+![performance-profile](./images/performance-profile.png)
 
 More detailes: https://docs.meshery.io/guides/performance-management
 
@@ -106,7 +106,7 @@ Therefore, we need to send HTTPs requests and upload the certificate to Istio In
 backbend running in Istio and exposed them with HTTPs protocul using Istio gateway. You can upload the certificate in Meshery
 performance profile and run the send the HTTPs load tests as shown below:
 
-<img src="./images/https_load_tests.png" width="600px">
+![http_load_tests](./images/https_load_tests.png)
 
 ## Grafana Dashboard Integration with Meshery
 
@@ -119,27 +119,27 @@ performance profile and run the send the HTTPs load tests as shown below:
 - Go to Settings http://LB-IP-address/settings#metrics -> Grafana/Prometheus
 - Input address of Prometheus service in Prometheus section. Check the connectivity by pinging the address button.
 
-<img src="./images/prometheus-1.png" width="600px">
+![prometheus-1](./images/prometheus-1.png)
 
 - Load custom config file of the dashboard to fetch the panels.
 
-<img src="./images/prometheus-2.png" width="600px">
+![prometheus-2](./images/prometheus-2.png)
 
 - Input address of Grafana service in Grafana section. Check the connectivity by pinging the address button.
 
 All Grafana dashboards and its panels should appear in the menu.
 
-<img src="./images/prometheus-3.png" width="600px">
+![prometheus-3](./images/prometheus-3.png)
 
 ## Clean up
 
 Clean up Meshery Design:
 
-<img src="./images/clean-up-design.png" width="400px">
+![clean-up-design](./images/clean-up-design.png)
 
 Clean up Istio:
 
-<img src="./images/clean-up-istio.png" width="400px">
+![clean-up-istio](./images/clean-up-istio.png)
 
 Clean up Meshery:
 
