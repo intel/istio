@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  name: fortio-server
+  namespace: fortio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fortio-server
+  template:
+    metadata:
+      labels:
+        app: fortio-server
+    spec:
+      containers:
+        - args:
+            - server
+          env:
+            - name: PORT
+              value: "8080"
+          image: fortio/fortio:1.32.1
+          imagePullPolicy: IfNotPresent
+          name: fortio-server
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "1"
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fortio-server
+  namespace: fortio
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: fortio-server
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: fortio-server-gateway-https
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: httpbin-fortio-credential # must be the same as secret
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: fortio-server-https
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - fortio-server-gateway-https
+  http:
+    - route:
+        - destination:
+            host: fortio-server
+            port:
+              number: 8080

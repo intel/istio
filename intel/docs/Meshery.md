@@ -85,6 +85,13 @@ You can configure automatic sidecar injection for a namespace. Then, you can dep
 ![automatic-sidecar-injection](./images/automatic-sidecar-injection.png)
 ![sample-application.png](./images/sample-application.png)
 
+You can also import your own applications from Meshery applications page via Helm Chart, Docker Compose and Kubernetes Manifests.
+Here is an example file of Kuberenetes Manifests that contains a backend server for benchmarking tests called "Fortio Server":
+[fortio-server-manifests.yaml](../yaml/fortio-server-manifests.yaml)
+
+![fortio-server-manifests](./images/fortio-server-manifests.png)
+![fortio-server-manifests-1](./images/fortio-server-manifests-1.png)
+
 ## Run a performance test
 
 ### Performance profile
