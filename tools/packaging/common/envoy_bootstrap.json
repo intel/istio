@@ -282,11 +282,10 @@
           }]
         }
       },
-      
       {
         "name": "sds-external",
         "type": "STATIC",
-        "typed_extension_protocol_options": 
+        "typed_extension_protocol_options": {
           "envoy.extensions.upstreams.http.v3.HttpProtocolOptions": {
             "@type": "type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions",
             "explicit_http_config": {
@@ -310,7 +309,6 @@
           }]
         }
       },
-
       {
         "name": "xds-grpc",
         "type" : "STATIC",
