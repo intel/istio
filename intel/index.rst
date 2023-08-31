@@ -3,5 +3,6 @@
    docs/QAT
    docs/CRYPTOMB
    docs/SGX-mTLS
-   docs/Grafana-Dashboard
    docs/Meshery
+   docs/SGX-gateway
+   docs/Grafana-Dashboard
