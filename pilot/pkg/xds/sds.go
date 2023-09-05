@@ -369,11 +369,17 @@ func toEnvoyTLSSecret(name string, certInfo *credscontroller.CertInfo, proxy *mo
 							InlineBytes: certInfo.Cert,
 						},
 					},
+					PrivateKey: &core.DataSource{
+						Specifier: &core.DataSource_InlineBytes{
+							InlineBytes: certInfo.Key,
+						},
+					},
 					PrivateKeyProvider: &envoytls.PrivateKeyProvider{
 						ProviderName: "cryptomb",
 						ConfigType: &envoytls.PrivateKeyProvider_TypedConfig{
 							TypedConfig: msg,
 						},
+						Fallback: crypto.GetFallback(),
 					},
 				},
 			},
@@ -397,11 +403,17 @@ func toEnvoyTLSSecret(name string, certInfo *credscontroller.CertInfo, proxy *mo
 							InlineBytes: certInfo.Cert,
 						},
 					},
+					PrivateKey: &core.DataSource{
+						Specifier: &core.DataSource_InlineBytes{
+							InlineBytes: certInfo.Key,
+						},
+					},
 					PrivateKeyProvider: &envoytls.PrivateKeyProvider{
 						ProviderName: "qat",
 						ConfigType: &envoytls.PrivateKeyProvider_TypedConfig{
 							TypedConfig: msg,
 						},
+						Fallback: qatConf.GetFallback(),
 					},
 				},
 			},
