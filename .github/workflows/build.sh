@@ -21,8 +21,8 @@ popd
 
 # export env
 TAG=${TAG:-"pre-build"}
-make build
+make build 
 # replace upstream envoy with local envoy in build proxyv2 image
 cp -rf istio-proxy/out/linux_amd64/envoy out/linux_amd64/release/envoy
 # build proxyv2 image
-make docker.proxyv2
+VERSION=${TAG} make docker.proxyv2
