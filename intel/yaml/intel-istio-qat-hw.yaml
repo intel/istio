@@ -43,6 +43,7 @@ spec:
             privateKeyProvider:
               qat:
                 pollDelay: 2ms
+                fallback: true
 
   values:
     # Annotate pods with either

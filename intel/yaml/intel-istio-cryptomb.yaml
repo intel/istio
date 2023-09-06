@@ -42,6 +42,7 @@ spec:
             privateKeyProvider:
               cryptomb:
                 pollDelay: 10ms
+                fallback: true
   values:
     # Annotate pods with
     #     inject.istio.io/templates: sidecar,cryptomb
