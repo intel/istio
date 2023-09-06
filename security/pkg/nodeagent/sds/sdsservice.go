@@ -254,11 +254,17 @@ func toEnvoySecret(s *security.SecretItem, caRootPath string, pkpConf *mesh.Priv
 							InlineBytes: s.CertificateChain,
 						},
 					},
+					PrivateKey: &core.DataSource{
+						Specifier: &core.DataSource_InlineBytes{
+							InlineBytes: s.PrivateKey,
+						},
+					},
 					PrivateKeyProvider: &tls.PrivateKeyProvider{
 						ProviderName: "cryptomb",
 						ConfigType: &tls.PrivateKeyProvider_TypedConfig{
 							TypedConfig: msg,
 						},
+						Fallback: crypto.GetFallback(),
 					},
 				},
 			}
@@ -279,11 +285,17 @@ func toEnvoySecret(s *security.SecretItem, caRootPath string, pkpConf *mesh.Priv
 							InlineBytes: s.CertificateChain,
 						},
 					},
+					PrivateKey: &core.DataSource{
+						Specifier: &core.DataSource_InlineBytes{
+							InlineBytes: s.PrivateKey,
+						},
+					},
 					PrivateKeyProvider: &tls.PrivateKeyProvider{
 						ProviderName: "qat",
 						ConfigType: &tls.PrivateKeyProvider_TypedConfig{
 							TypedConfig: msg,
 						},
+						Fallback: qatConf.GetFallback(),
 					},
 				},
 			}
