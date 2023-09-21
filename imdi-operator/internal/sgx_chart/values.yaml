@@ -1,0 +1,24 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  namespace: istio-system
+  name: example-istiocontrolplane
+spec:
+  profile: default
+  components:
+    egressGateways:
+    - name: istio-egressgateway
+      enabled: true
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+IngressGateways:
+- name: istio-ingressgateway
+  qat:
+    instance: 1
+    polldelay: 5ms
+  cryptomb: null
+- name: istio-ingressgateway-1
+  qat: null
+  cryptomb:
+    polldelay: 5ms
