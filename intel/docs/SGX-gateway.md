@@ -2,12 +2,13 @@
 
 ## Introduction
 
-Protecting Istio gateway private keys with Intel® SGX enhances the service mesh security. The private keys are stored and used inside the SGX enclave(s) and will never stored in clear anywhere in the system. Authorized applications use the private key in the enclave by key-handle provided by SGX.
+Protecting Istio gateway private keys with Intel® SGX enhances the service mesh security. The private keys are stored and used inside the SGX enclave(s) and will never stored in clear anywhere in the system. Authorized applications use the private key in the enclave by key-handle provided by SGX. For more application scenarios, please refer to [this document](https://github.com/istio-ecosystem/hsm-sds-server/blob/main/README.md)
 
 ## Prerequisites
 
 Prerequisites for using Istio gateway private key protection with SGX:
 
+- [Intel® SGX software stack](setup-sgx-software.md)
 - Kubernetes cluster with one or more nodes with Intel® [SGX](https://software.intel.com/content/www/us/en/develop/topics/software-guard-extensions.html) supported hardware
 - [Intel® SGX device plugin for Kubernetes](https://github.com/intel/intel-device-plugins-for-kubernetes/blob/main/cmd/sgx_plugin/README.md)
 - Linux kernel version 5.11 or later on the host (in tree SGX driver)
@@ -55,7 +56,7 @@ $ make docker
 
 3. Install Istio
 
-> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.17.1-intel.2` since only that contains Istio manifest enhancements for SGX mTLS.
+> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.19.0` since only that contains Istio manifest enhancements for SGX mTLS.
 You can also customize the `intel-istio-sgx-gateway.yaml` according to your needs. If you want do the quote verification, you can set the `NEED_QUOTE` env as `true`. And if you are using the TCS v1alpha1 api, you should set the `RANDOM_NONCE` as `false`.
 
 ```sh
