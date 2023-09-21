@@ -1,0 +1,236 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istio
+spec:
+  profile: default
+  hub: "intel"
+  tag: "1.19.0-intel.0"
+  components:
+    pilot:
+      k8s:
+        env:
+          - name: CERT_SIGNER_NAME
+            value: clusterissuers.cert-manager.io/istio-system
+          - name: CERT_SIGNER_DOMAIN
+            value: clusterissuers.cert-manager.io
+          # - name: EXTERNAL_CA
+          #   value: ISTIOD_RA_KUBERNETES_API
+          - name: PILOT_CERT_PROVIDER
+            value: k8s.io/clusterissuers.cert-manager.io/istio-system
+        overlays:
+          - kind: ClusterRole
+            name: istiod-clusterrole-istio-system
+            patches:
+              - path: rules[-1]
+                value: |
+                  apiGroups:
+                  - certificates.k8s.io
+                  resourceNames:
+                  - clusterissuers.cert-manager.io/istio-system
+                  resources:
+                  - signers
+                  verbs:
+                  - approve
+                  - get
+                  - list
+                  - patch
+                  - delete
+                  - watch
+                  - update
+  meshConfig:
+    defaultConfig:
+      proxyMetadata:
+        PROXY_CONFIG_XDS_AGENT: "true"
+        ISTIO_META_CERT_SIGNER: istio-system
+    caCertificates:
+      - pem: |
+          -----BEGIN CERTIFICATE-----
+          MIIC+zCCAeOgAwIBAgIRAKDV9qSYId4aILs8/Qtvm/wwDQYJKoZIhvcNAQELBQAw
+          FzEVMBMGA1UEAxMMaXN0aW8tc3lzdGVtMB4XDTIzMTEwNzA4MDIxNFoXDTI0MDIw
+          NTA4MDIxNFowFzEVMBMGA1UEAxMMaXN0aW8tc3lzdGVtMIIBIjANBgkqhkiG9w0B
+          AQEFAAOCAQ8AMIIBCgKCAQEAqie+J78Z8BRR/r0QcghbL2qHeOuweaZfdAWeNhCo
+          MU9GJnNXmYIg3pg4FnYLwtinHmgdBRpXRv6Bf8ZFLbhax+pAOLOwC1rkRruki6C9
+          2AA9tj6mV59VB1+0/NAu4zFgkrJl+YKg4zZq0RnI+eR1l6CVktyq7HRo36XFvyD3
+          7zvfFGFLzZNZ685/l0WtKOd0VVGObUkNvcTzjbN+6R8xGAYnr0RHJ8jBPeZ+7He3
+          vuPiHrZ//S2RReO+hd5okpVXizTFQ35Tl+LKc+Qsp+QHKWwoNDyDW7YUgifyPcTW
+          2sSctEWByALYKwqfiuPXoaBmbjDNhqkR5Uhy3RMbdEHLAwIDAQABo0IwQDAOBgNV
+          HQ8BAf8EBAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUdsb50UYraPxU
+          hMHgJ3zNuizGVBswDQYJKoZIhvcNAQELBQADggEBAIWWb5KcYuxRM+J32+kUmfew
+          vQOBcyTkGtT7Hc4snrgk3zkFL/A063RzXH2Tfz4Sr+YgVALlfB9IGyU4ibmRIQfi
+          JqgH7yMY2bv8JJjyTBZK3VOp3Mky7bnaetjIUefUvbYtT8GoY1kOWr3N644OT4By
+          8bZbmUEMPsTJEOStWcumwLCvoJQ5dJ04r2ELtGsnBLYXvdAju0Hy3VN5Ws9Wnmvq
+          H9nHG3noKu8Cayf5E5J2yZWbC/Zbxn3WZfUftBxpNnXpZ8y3tdTllqrA1Ia2UpjJ
+          5ZsjO58OybmnPkrcCOfeKFUQk/qb/Tx+0R6dxrft867EBCWMDD5xVDKcqyjq854=
+          -----END CERTIFICATE-----
+        certSigners:
+        - clusterissuers.cert-manager.io/istio-system
+  values:
+    global:
+      imagePullPolicy: IfNotPresent 
+    pilot:
+      env:
+        EXTERNAL_CA: ISTIOD_RA_KUBERNETES_API
+    sidecarInjectorWebhook:
+      templates:
+        sgx: |
+          metadata:
+            annotations:
+              sgx.intel.com/quote-provider: aesmd
+          spec:
+            containers:
+            - name: sdsserver
+              image: intel/hsm-sds-server:1.19.0
+              imagePullPolicy: IfNotPresent 
+              lifecycle:
+                postStart:
+                  exec:
+                    command: ["/bin/sh", "-c", "./home/istio-proxy/prepare.sh"]
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 500Mi
+                  sgx.intel.com/enclave: 1
+                  sgx.intel.com/epc: 1Mi
+                requests:
+                  cpu: 200m
+                  memory: 300Mi
+                  sgx.intel.com/enclave: 1
+                  sgx.intel.com/epc: 1Mi
+              env:
+              - name: NEED_QUOTE
+                value: "false"
+              - name: RANDOM_NONCE
+                value: "false"
+              - name: POD_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.name
+              - name: POD_NAMESPACE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
+              - name: SERVICE_ACCOUNT
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.serviceAccountName
+              {{- with (valueOrDefault .MeshConfig.TrustDomain .Values.global.trustDomain)  }}
+              - name: TRUST_DOMAIN
+                value: "{{ . }}"
+              {{- end }}
+              - name: CERT_SIGNER_NAME
+                value: clusterissuers.cert-manager.io/istio-system
+              - name: CERT_SIGNER_DOMAIN
+                value: clusterissuers.cert-manager.io
+              # - name: EXTERNAL_CA
+              #   value: ISTIOD_RA_KUBERNETES_API
+              - name: PILOT_CERT_PROVIDER
+                value: k8s.io/clusterissuers.cert-manager.io/istio-system
+              volumeMounts:
+              - name: workload-socket
+                mountPath: /var/run/secrets/workload-spiffe-uds
+              - name: credential-socket
+                mountPath: /var/run/secrets/credential-uds
+              - name: sgx-libraries
+                mountPath: /home/istio-proxy/sgx/lib
+              - name: istio-podinfo
+                mountPath: /etc/istio/pod
+              - name: istio-token
+                mountPath: /var/run/secrets/tokens
+              - name: istiod-ca-cert
+                mountPath: /var/run/secrets/istio
+              - name: istio-data
+                mountPath: /var/lib/istio/data
+              - name: ctk-tokens
+                mountPath: /opt/intel/cryptoapitoolkit/tokens
+            - name: istio-proxy
+              volumeMounts:
+              - name: credential-socket
+                mountPath: /var/run/secrets/credential-uds
+              - name: sgx-libraries
+                mountPath: /home/istio-proxy/sgx/lib
+              - name: ctk-tokens
+                mountPath: /opt/intel/cryptoapitoolkit/tokens
+              resources:
+                limits:
+                  sgx.intel.com/enclave: 1
+                  sgx.intel.com/epc: 1Mi
+                requests:
+                  sgx.intel.com/enclave: 1
+                  sgx.intel.com/epc: 1Mi
+              env:
+              - name: CERT_SIGNER_NAME
+                value: clusterissuers.cert-manager.io/istio-system
+              - name: CERT_SIGNER_DOMAIN
+                value: clusterissuers.cert-manager.io
+              # - name: EXTERNAL_CA
+              #   value: ISTIOD_RA_KUBERNETES_API
+              - name: PILOT_CERT_PROVIDER
+                value: k8s.io/clusterissuers.cert-manager.io/istio-system
+    gateways:
+      istio-ingressgateway:
+        podAnnotations:
+          sgx.intel.com/quote-provider: aesmd
+        additionalContainers:
+          - name: sdsserver
+            image: intel/hsm-sds-server:1.19.0
+            imagePullPolicy: IfNotPresent 
+            lifecycle:
+              postStart:
+                exec:
+                  command: ["/bin/sh", "-c", "./home/istio-proxy/prepare.sh"]
+            resources:
+              limits:
+                cpu: 200m
+                memory: 500Mi
+                sgx.intel.com/enclave: 1
+                sgx.intel.com/epc: 1Mi
+              requests:
+                cpu: 200m
+                memory: 300Mi
+                sgx.intel.com/enclave: 1
+                sgx.intel.com/epc: 1Mi
+            env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: MANUAL_OPS 
+              value: "true"
+            - name: NEED_QUOTE
+              value: "false"
+            - name: RANDOM_NONCE
+              value: "false"
+            - name: CERT_SIGNER_NAME
+              value: clusterissuers.cert-manager.io/istio-system
+            - name: CERT_SIGNER_DOMAIN
+              value: clusterissuers.cert-manager.io
+            # - name: EXTERNAL_CA
+            #   value: ISTIOD_RA_KUBERNETES_API
+            - name: PILOT_CERT_PROVIDER
+              value: k8s.io/clusterissuers.cert-manager.io/istio-system
+            volumeMounts:
+            - name: workload-socket
+              mountPath: /var/run/secrets/workload-spiffe-uds
+            - name: credential-socket
+              mountPath: /var/run/secrets/credential-uds
+            - name: sgx-libraries
+              mountPath: /home/istio-proxy/sgx/lib
+            - name: podinfo
+              mountPath: /etc/istio/pod
+            - name: istio-token
+              mountPath: /var/run/secrets/tokens
+            - name: istiod-ca-cert
+              mountPath: /var/run/secrets/istio
+            - name: istio-data
+              mountPath: /var/lib/istio/data
+            - name: ctk-tokens
+              mountPath: /opt/intel/cryptoapitoolkit/tokens
