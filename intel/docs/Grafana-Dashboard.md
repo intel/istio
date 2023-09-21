@@ -62,6 +62,21 @@ Use the following command to uninstall kube-prometheus-stack from cluster.
 helm uninstall kube-prometheus-stack -n monitoring
 ```
 
+CRDs created by this chart are not removed by default and should be manually cleaned up:
+
+```
+kubectl delete crd alertmanagerconfigs.monitoring.coreos.com
+kubectl delete crd alertmanagers.monitoring.coreos.com
+kubectl delete crd podmonitors.monitoring.coreos.com
+kubectl delete crd probes.monitoring.coreos.com
+kubectl delete crd prometheusagents.monitoring.coreos.com
+kubectl delete crd prometheuses.monitoring.coreos.com
+kubectl delete crd prometheusrules.monitoring.coreos.com
+kubectl delete crd scrapeconfigs.monitoring.coreos.com
+kubectl delete crd servicemonitors.monitoring.coreos.com
+kubectl delete crd thanosrulers.monitoring.coreos.com
+```
+
 Remove deployment.
 ```
 kubectl delete -f intel/yaml/envoy-filter-cryptomb-stats.yaml -f intel/yaml/grafana-gw-certificates.yaml -f intel/yaml/grafana-istio-gw-vs.yaml
