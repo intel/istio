@@ -1,0 +1,47 @@
+apiVersion: imdi-servicemesh.intel.com/v1
+kind: ImdiOperator
+metadata:
+  labels:
+    app.kubernetes.io/name: imdioperator
+    app.kubernetes.io/instance: imdioperator-sample
+    app.kubernetes.io/part-of: imdi-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: imdi-operator
+  name: imdioperator-sample
+spec:
+  setupproxy:
+    https_proxy: "http://proxy-dmz.intel.com:912"
+    http_proxy: "http://proxy-dmz.intel.com:912"
+    no_proxy: "10.0.0.0/8,192.168.0.0/16,127.0.0.1,localhost,10.165.56.200,fortio.com,10.244.0.0/16,10.96.0.0/16,.svc"
+  DevicePlugin: # for preinstalled DevicePlugin (allow empty)
+    nfd: "https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/nfd?ref=v0.26.2"
+    nfd_rules: "https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/nfd/overlays/node-feature-rules?ref=v0.26.2"
+    cert_manager: "https://github.com/cert-manager/cert-manager/releases/download/v1.12.0/cert-manager.yaml"
+    device_plugin_operator: "https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/operator/default?ref=v0.26.2"
+  # TODO(user): Add fields here
+  IstioSpec: | # Configuration for Istio config (if empty, use default istio profile)
+    apiVersion: install.istio.io/v1alpha1
+    kind: IstioOperator
+    metadata:
+      namespace: istio-system
+      name: example-istiocontrolplane
+    spec:
+      profile: defualt
+      components:
+        egressGateways:
+        - name: istio-egressgateway
+          enabled: true
+        ingressGateways:
+        - name: istio-ingressgateway-1
+          enabled: true
+        - name: istio-ingressgateway-2
+          enabled: true
+  IngressGateways: # To enable IA feature for Ingressgateway (if empty ,istio start without hardware feature
+    - name: istio-ingressgateway-1
+      Qat:
+        Instance: 1
+        pollDelay: 5ms
+    - name: istio-ingressgateway-2
+      CryptoMB: 
+        pollDelay: 5ms
+

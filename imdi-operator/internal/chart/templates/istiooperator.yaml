@@ -1,0 +1,91 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  profile: {{.Values.spec.profile | default "default" }}
+  tag: {{.Values.spec.tag | default "1.18.0-intel.0-rc.1" | quote }}
+  hub: {{.Values.spec.hub | default "ccr-registry.caas.intel.com/intel-istio/istio" | quote }}
+  meshConfig:
+  # Enable for envoy debugging
+  # accessLogFile: /dev/stdout
+    defaultConfig:
+      proxyStatsMatcher:
+        inclusionPrefixes:
+          - "listener"
+      # Allows cryptomb bucket statistics via EnvoyFilter 
+      proxyMetadata:
+        BOOTSTRAP_XDS_AGENT: "true"
+  {{- if .Values.spec.components }}
+  {{- $Ingateways := .Values.IngressGateways }}
+  components:
+    egressGateways:
+    {{- range .Values.spec.components.egressGateways }}
+    - name: {{ .name }}
+      enabled: {{ .enabled }}
+    {{- end }}
+    ingressGateways:
+    {{- $Specgateways := .Values.spec.components.ingressGateways}}
+    {{- range $specindex, $specgateway :=  $Specgateways}}
+    - name: {{ $specgateway.name }}
+      enabled: {{ $specgateway.enabled }}
+      namespace: {{ $specgateway.namespace | default "default" }}
+      k8s:
+        overlays:
+        - kind: Deployment
+          name: {{ $specgateway.name }}
+          patches:
+          - path: spec.template.spec.containers.[name:istio-proxy].args.[-1]
+            value: --concurrency={{ .cpu | default 4 }}
+          {{- range $index, $gateway := $Ingateways }}
+          {{- if eq $gateway.name $specgateway.name }}
+          {{- if $gateway.qat }}
+          - path: spec.template.spec.containers.[name:istio-proxy].securityContext.capabilities.add
+            value: [ "IPC_LOCK" ]
+          {{- end }}
+          {{- end }}
+          {{- end }}
+        resources:
+          requests:
+            cpu: {{ .cpu | default 4 }}000m
+            memory: {{ .mem | default 4096 }}Mi
+            {{- range $index, $gateway := $Ingateways }}
+            {{- if eq $gateway.name $specgateway.name }}
+            {{- if $gateway.qat }}
+            qat.intel.com/cy: "{{ $gateway.qat.instance }}"
+            qat.intel.com/dc: "{{ $gateway.qat.instance }}"
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          limits:
+            cpu: {{ .cpu | default 4 }}000m
+            memory: {{ .mem | default 4096 }}Mi
+            {{- range $index, $gateway := $Ingateways }}
+            {{- if eq $gateway.name $specgateway.name }}
+            {{- if $gateway.qat }}
+            qat.intel.com/cy: "{{ $gateway.qat.instance }}"
+            qat.intel.com/dc: "{{ $gateway.qat.instance }}"
+            {{- end }}
+            {{- end }}
+            {{- end }}
+        hpaSpec:
+          maxReplicas: 1
+          minReplicas: 1
+        {{- range $index, $gateway := $Ingateways }}
+            {{- if eq $gateway.name $specgateway.name }}
+            {{- if $gateway.qat }}
+        podAnnotations:
+          proxy.istio.io/config: |
+            privateKeyProvider:
+              qat:
+                pollDelay: {{ $gateway.qat.polldelay }}
+              {{- end}}
+              {{- if $gateway.cryptomb }}
+        podAnnotations:
+          proxy.istio.io/config: |
+            privateKeyProvider:
+              cryptomb:
+                pollDelay: {{ $gateway.cryptomb.polldelay }}
+              {{- end}}
+            {{- end }}
+        {{- end }}
+  {{- end }}
+{{- end }}

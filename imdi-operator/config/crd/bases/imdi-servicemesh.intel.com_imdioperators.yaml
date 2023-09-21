@@ -1,0 +1,150 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.12.0
+  name: imdioperators.imdi-servicemesh.intel.com
+spec:
+  group: imdi-servicemesh.intel.com
+  names:
+    kind: ImdiOperator
+    listKind: ImdiOperatorList
+    plural: imdioperators
+    singular: imdioperator
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: ImdiOperator is the Schema for the imdioperators API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ImdiOperatorSpec defines the desired state of ImdiOperator
+            properties:
+              DevicePlugin:
+                properties:
+                  cert_manager:
+                    type: string
+                  device_plugin_operator:
+                    type: string
+                  nfd:
+                    type: string
+                  nfd_rules:
+                    type: string
+                type: object
+              IngressGateways:
+                items:
+                  properties:
+                    CryptoMB:
+                      properties:
+                        pollDelay:
+                          type: string
+                      type: object
+                    Qat:
+                      properties:
+                        Instance:
+                          format: int64
+                          type: integer
+                        pollDelay:
+                          type: string
+                      type: object
+                    Sgx:
+                      properties:
+                        Enable:
+                          type: boolean
+                      type: object
+                    name:
+                      type: string
+                  type: object
+                type: array
+              IstioSpec:
+                description: Foo is an example field of ImdiOperator. Edit imdioperator_types.go
+                  to remove/update
+                type: string
+              setupproxy:
+                properties:
+                  http_proxy:
+                    type: string
+                  https_proxy:
+                    type: string
+                  no_proxy:
+                    type: string
+                type: object
+            type: object
+          status:
+            description: ImdiOperatorStatus defines the observed state of ImdiOperator
+            properties:
+              CertManagerStatus:
+                default: NotSet
+                type: string
+              ConfigParseStatus:
+                default: NotSet
+                type: string
+              CryptoMBStatus:
+                default: NotSet
+                type: string
+              DevicePluginStatus:
+                default: NotSet
+                type: string
+              IstioStatus:
+                default: NotSet
+                type: string
+              NfdStatus:
+                default: NotSet
+                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                  of cluster Important: Run "make" to regenerate code after modifying
+                  this file'
+                type: string
+              NfdruleStatus:
+                default: NotSet
+                type: string
+              QatDeviceNum:
+                format: int64
+                type: integer
+              QatStatus:
+                default: NotSet
+                type: string
+              SgxPSWStatus:
+                default: NotSet
+                type: string
+              SgxStatus:
+                default: NotSet
+                type: string
+              proxyenabled:
+                type: boolean
+              proxystatus:
+                default: NotSet
+                type: string
+            required:
+            - CertManagerStatus
+            - ConfigParseStatus
+            - CryptoMBStatus
+            - DevicePluginStatus
+            - IstioStatus
+            - NfdStatus
+            - NfdruleStatus
+            - QatDeviceNum
+            - QatStatus
+            - SgxPSWStatus
+            - SgxStatus
+            - proxyenabled
+            - proxystatus
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
