@@ -5,7 +5,7 @@ metadata:
 spec:
   profile: default
   hub: "intel"
-  tag: "1.17.1-intel.2"
+  tag: "1.19.0-intel.0"
   components:
     pilot:
       k8s:
@@ -14,6 +14,8 @@ spec:
             value: clusterissuers.cert-manager.io/istio-system
           - name: CERT_SIGNER_DOMAIN
             value: clusterissuers.cert-manager.io
+          # - name: EXTERNAL_CA
+          #   value: ISTIOD_RA_KUBERNETES_API
           - name: PILOT_CERT_PROVIDER
             value: k8s.io/clusterissuers.cert-manager.io/istio-system
         overlays:
@@ -64,11 +66,11 @@ spec:
         certSigners:
         - clusterissuers.cert-manager.io/istio-system
   values:
+    global:
+      imagePullPolicy: IfNotPresent 
     pilot:
       env:
         EXTERNAL_CA: ISTIOD_RA_KUBERNETES_API
-    global:
-      imagePullPolicy: IfNotPresent 
     sidecarInjectorWebhook:
       templates:
         sgx: |
@@ -78,7 +80,7 @@ spec:
           spec:
             containers:
             - name: sdsserver
-              image: sds-server/sds-server:latest
+              image: intel/hsm-sds-server:1.19.0
               imagePullPolicy: IfNotPresent 
               lifecycle:
                 postStart:
@@ -120,8 +122,8 @@ spec:
                 value: clusterissuers.cert-manager.io/istio-system
               - name: CERT_SIGNER_DOMAIN
                 value: clusterissuers.cert-manager.io
-                # - name: EXTERNAL_CA
-                #   value: ISTIOD_RA_KUBERNETES_API
+              # - name: EXTERNAL_CA
+              #   value: ISTIOD_RA_KUBERNETES_API
               - name: PILOT_CERT_PROVIDER
                 value: k8s.io/clusterissuers.cert-manager.io/istio-system
               volumeMounts:
@@ -161,8 +163,8 @@ spec:
                 value: clusterissuers.cert-manager.io/istio-system
               - name: CERT_SIGNER_DOMAIN
                 value: clusterissuers.cert-manager.io
-                # - name: EXTERNAL_CA
-                #   value: ISTIOD_RA_KUBERNETES_API
+              # - name: EXTERNAL_CA
+              #   value: ISTIOD_RA_KUBERNETES_API
               - name: PILOT_CERT_PROVIDER
                 value: k8s.io/clusterissuers.cert-manager.io/istio-system
             volumes:
@@ -180,7 +182,7 @@ spec:
           sgx.intel.com/quote-provider: aesmd
         additionalContainers:
           - name: sdsserver
-            image: sds-server/sds-server:latest
+            image: intel/hsm-sds-server:1.19.0
             imagePullPolicy: IfNotPresent 
             lifecycle:
               postStart:
@@ -220,8 +222,8 @@ spec:
               value: clusterissuers.cert-manager.io/istio-system
             - name: CERT_SIGNER_DOMAIN
               value: clusterissuers.cert-manager.io
-              # - name: EXTERNAL_CA
-              #   value: ISTIOD_RA_KUBERNETES_API
+            # - name: EXTERNAL_CA
+            #   value: ISTIOD_RA_KUBERNETES_API
             - name: PILOT_CERT_PROVIDER
               value: k8s.io/clusterissuers.cert-manager.io/istio-system
             volumeMounts:

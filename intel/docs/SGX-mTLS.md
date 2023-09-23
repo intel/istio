@@ -2,36 +2,78 @@
 
 ## Introduction
 
-Protecting Istio mTLS private keys with Intel® SGX enhances the service mesh security. The private keys are stored and used inside the SGX enclave(s) and will never stored in clear anywhere in the system. Authorized applications use the private key in the enclave by key-handle provided by SGX.
+Protecting Istio mTLS private keys with Intel® SGX enhances the service mesh security. The private keys are stored and used inside the SGX enclave(s) and will never stored in clear anywhere in the system. Authorized applications use the private key in the enclave by key-handle provided by SGX. For more application scenarios, please refer to [this document](https://github.com/istio-ecosystem/hsm-sds-server/blob/main/README.md)
 
 ## Prerequisites
 
 Prerequisites for using Istio mTLS private key protection with SGX:
 
+- [Intel® SGX software stack](setup-sgx-software.md)
 - Kubernetes cluster with one or more nodes with [Intel® SGX](https://software.intel.com/content/www/us/en/develop/topics/software-guard-extensions.html) supported hardware
 - [Intel® SGX device plugin for Kubernetes](https://github.com/intel/intel-device-plugins-for-kubernetes/blob/main/cmd/sgx_plugin/README.md)
 - Linux kernel version 5.11 or later on the host (in tree SGX driver)
-- [trusted-certificate-issuer](https://github.com/intel/trusted-certificate-issuer)
-- [Intel® SGX AESM daemon](https://github.com/intel/linux-sgx#install-the-intelr-sgx-psw)
-- [Intel® KMRA service](https://www.intel.com/content/www/us/en/developer/topic-technology/open/key-management-reference-application/overview.html)
-- [Intel® Linux SGX](https://github.com/intel/linux-sgx) and [cripto-api-toolkit](https://github.com/intel/crypto-api-toolkit) in the host (optional, only needed if you want to build sds-server image locally)
+- Custom CA which support [Kubernetes CSR API](https://kubernetes.io/docs/reference/access-authn-authz/certificate-signing-requests/)
+- [Intel® KMRA service](https://www.intel.com/content/www/us/en/developer/topic-technology/open/key-management-reference-application/overview.html) (Optional, needs to be set up only when remote attestation required, which can be set through `NEED_QUOTE` flag in the chart.)
+- [cripto-api-toolkit](https://github.com/intel/crypto-api-toolkit) in the host (optional, only needed if you want to build sds-server image locally)
 > NOTE: The KMRA service and AESM daemon is also optional, needs to be set up only when remote attestaion required, which can be set through `NEED_QUOTE` flag in the chart.
 
 ## Installation
+> Note: please ensure installed cert manager with flag  `--feature-gates=ExperimentalCertificateSigningRequestControllers=true`. You can use `--set featureGates="ExperimentalCertificateSigningRequestControllers=true"` when helm install cert-manager
 
-This section covers how to install Istio mTLS private key protection with SGX
-
-1. Install Istio
-
-> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.15.1-intel.0` since only that contains Istio manifest enhancements for SGX mTLS.
-
-You can also customize the `intel-istio-sgx-mTLS.yaml` according to your needs. If you want to enable sgx in sidecars or gateway, you can set the `sgx.enable` flag as `true`. And if you want do the quote verification, you should enable the `certExtensionValidationEnabled` flag.
+### Create signer
 
 ```sh
-istioctl install -f ./intel/yaml/intel-istio-sgx-mTLS.yaml -y
+$ cat <<EOF > ./istio-cm-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-istio-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: istio-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: istio-system
+  secretName: istio-ca-selfsigned
+  issuerRef:
+    name: selfsigned-istio-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: istio-system
+spec:
+  ca:
+    secretName: istio-ca-selfsigned
+EOF
+$ kubectl apply -f ./istio-cm-issuer.yaml
 ```
 
-2. Verifiy the pods are running
+```sh
+# Get CA Cert and replace it in ./deployment/istio-configs/istio-hsm-config.yaml
+$ kubectl get clusterissuers istio-system -o jsonpath='{.spec.ca.secretName}' | xargs kubectl get secret -n cert-manager -o jsonpath='{.data.ca\.crt}' | base64 -d
+```
+
+### Apply quote attestation CRD
+```sh
+$ kubectl apply -f https://github.com/intel/trusted-certificate-issuer/tree/main/deployment/crds
+```
+
+### Protect the private keys of workloads with HSM
+1. Install Istio
+
+```sh
+$ istioctl install -f ./deployment/istio-configs/istio-hsm-config.yaml -y
+```
+
+2. Verifiy the Istio is ready
 
 By deault, `Istio` will be installed in the `istio-system` namespce
 
@@ -39,57 +81,44 @@ By deault, `Istio` will be installed in the `istio-system` namespce
 # Ensure that the pod is running state
 $ kubectl get po -n istio-system
 NAME                                    READY   STATUS    RESTARTS   AGE
-istio-egressgateway-66b7c87ff8-qdf2z    1/1     Running   0          24s
-istio-ingressgateway-789bb4b4f5-7mrq9   1/1     Running   0          24s
-istiod-6d49576478-cg6xc                 1/1     Running   0          28s
+istio-ingressgateway-6cd77bf4bf-t4cwj   1/1     Running   0          70m
+istiod-6cf88b78dc-dthpw                 1/1     Running   0          70m
 ```
 
-## Deploy sample application
-
-1. Create test namespace:
-
+3. Create sleep and httpbin deployment:
+> NOTE: If you want use the sds-custom injection template, you need to set the annotations `inject.istio.io/templates` for both `sidecar` and `sgx`. And the ClusterRole is also required.
 ```sh
-# create test namespace
-$ kubectl create ns foo
+$ kubectl apply -f <(istioctl kube-inject -f ./deployment/istio-configs/sleep-hsm.yaml )
+$ kubectl apply -f <(istioctl kube-inject -f ./deployment/istio-configs/httpbin-hsm.yaml )
 ```
 
-2. Create httpbin deployment:
-
-```sh
-kubectl apply -f <(istioctl kube-inject -f https://raw.githubusercontent.com/istio/istio/master/samples/httpbin/httpbin.yaml) -n foo
-```
-
-3. Create sleep deployment:
-
-```sh
-kubectl apply -f <(istioctl kube-inject -f https://raw.githubusercontent.com/istio/istio/master/samples/sleep/sleep.yaml) -n foo
-```
+> A reminder, if you want to apply other workloads, please make sure to add the correct RBAC rules for its `Service Account`. For details, please refer to the configuration of `ClusterRole` in `./deployment/istio-configs/httpbin-hsm.yaml`.
 
 4. Successful deployment looks like this:
 
 ```sh
-$ kubectl get po -n foo
+$ kubectl get po
 NAME                       READY   STATUS    RESTARTS   AGE
-httpbin-7484c67b4d-8xf7q   2/2     Running     0        4m58s
-sleep-6b74fd544d-q64j8     2/2     Running     0        5m13s
+httpbin-5f6bf4d4d9-5jxj8   3/3     Running   0          30s
+sleep-57bc8d74fc-2lw4n     3/3     Running   0          7s
 ```
 5. Test pod resources:
 
 ```sh
-$ kubectl exec "$(kubectl get pod -l app=sleep -n foo -o jsonpath={.items..metadata.name})" -c sleep -n foo -- curl -s http://httpbin.foo:8000/headers | grep X-Forwarded-Client-Cert
-    "X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/foo/sa/httpbin;Hash=cd5d0504234e80c701c4fe01ef49f3fe048a63d1cdd5b9ffe3dd67ae3d93396b;Subject=\"CN=spiffe://cluster.local/ns/foo/sa/sleep\";URI=spiffe://cluster.local/ns/foo/sa/sleep"
+$ kubectl exec "$(kubectl get pod -l app=sleep -o jsonpath={.items..metadata.name})" -c sleep -- curl -v -s http://httpbin.default:8000/headers | grep X-Forwarded-Client-Cert
+    "X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/default/sa/httpbin;Hash=2875ce095572f8a12b6080213f7789bfb699099b83e8ea2889a2d7b3eb9523e6;Subject=\"CN=SGX based workload,O=Intel(R) Corporation\";URI=spiffe://cluster.local/ns/default/sa/sleep"
 
 ```
 
-The above `httpbin` and `sleep` applications have enabled SGX and store the private keys inside SGX enclave, completed the TLS handshake and established a connection with each other and communicating normally.
+The above `httpbin` and `sleep` applications have enabled SGX and store the private keys inside SGX enclave, completed the TLS handshake and established a connection with each other.
 
-## Cleaning Up
 ```sh
-# uninstall istio
-$ istioctl x uninstall --purge -y
-# delete workloads
-$ kubectl delete ns foo
+# Dump the envoy config
+$ kubectl exec "$(kubectl get pod -l app=sleep -o jsonpath={.items..metadata.name})" -c istio-proxy -- bash 
+
+$ curl localhost:15000/config_dump > envoy_conf.json
 ```
+It can be seen from the config file that the `private_key_provider` configuation has replaced the original private key, and the real private key has been safely stored in the SGX enclave.
 
 ## See also
 
