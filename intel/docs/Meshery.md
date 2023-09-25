@@ -119,7 +119,7 @@ performance profile and run the send the HTTPs load tests as shown below:
 
 > **Prerequisites:**
 > 
-> Prometheus and Grafana installed: https://github.com/intel/istio/blob/release-1.18-intel/intel/docs/Grafana-Dashboard.md
+> Prometheus and Grafana installed: https://github.com/intel/istio/blob/release-1.19-intel/intel/docs/Grafana-Dashboard.md
 
 - Login To Grafana and retrieve API Key from Settings.
 - Access Meshery UI using Meshery service LB address.
