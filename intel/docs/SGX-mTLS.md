@@ -18,6 +18,9 @@ Prerequisites for using Istio mTLS private key protection with SGX:
 > NOTE: The KMRA service and AESM daemon is also optional, needs to be set up only when remote attestaion required, which can be set through `NEED_QUOTE` flag in the chart.
 
 ## Installation
+
+This section covers how to install Istio mTLS private key protection with SGX. We use Cert Manager as default K8s CA in this document. If you want to use TCS for remote attestaion, please refer to this [Document](https://github.com/istio-ecosystem/hsm-sds-server/blob/main/Install-with-TCS.md).
+
 > Note: please ensure installed cert manager with flag  `--feature-gates=ExperimentalCertificateSigningRequestControllers=true`. You can use `--set featureGates="ExperimentalCertificateSigningRequestControllers=true"` when helm install cert-manager
 
 ### Create signer
@@ -67,13 +70,13 @@ $ kubectl apply -f https://github.com/intel/trusted-certificate-issuer/tree/main
 ```
 
 ### Protect the private keys of workloads with HSM
-1. Install Istio
+- Install Istio
 
 ```sh
 $ istioctl install -f ./deployment/istio-configs/istio-hsm-config.yaml -y
 ```
 
-2. Verifiy the Istio is ready
+- Verifiy the Istio is ready
 
 By deault, `Istio` will be installed in the `istio-system` namespce
 
@@ -85,7 +88,7 @@ istio-ingressgateway-6cd77bf4bf-t4cwj   1/1     Running   0          70m
 istiod-6cf88b78dc-dthpw                 1/1     Running   0          70m
 ```
 
-3. Create sleep and httpbin deployment:
+- Create sleep and httpbin deployment:
 > NOTE: If you want use the sds-custom injection template, you need to set the annotations `inject.istio.io/templates` for both `sidecar` and `sgx`. And the ClusterRole is also required.
 ```sh
 $ kubectl apply -f <(istioctl kube-inject -f ./deployment/istio-configs/sleep-hsm.yaml )
@@ -94,7 +97,7 @@ $ kubectl apply -f <(istioctl kube-inject -f ./deployment/istio-configs/httpbin-
 
 > A reminder, if you want to apply other workloads, please make sure to add the correct RBAC rules for its `Service Account`. For details, please refer to the configuration of `ClusterRole` in `./deployment/istio-configs/httpbin-hsm.yaml`.
 
-4. Successful deployment looks like this:
+- Successful deployment looks like this:
 
 ```sh
 $ kubectl get po
@@ -102,7 +105,7 @@ NAME                       READY   STATUS    RESTARTS   AGE
 httpbin-5f6bf4d4d9-5jxj8   3/3     Running   0          30s
 sleep-57bc8d74fc-2lw4n     3/3     Running   0          7s
 ```
-5. Test pod resources:
+- Test pod resources:
 
 ```sh
 $ kubectl exec "$(kubectl get pod -l app=sleep -o jsonpath={.items..metadata.name})" -c sleep -- curl -v -s http://httpbin.default:8000/headers | grep X-Forwarded-Client-Cert
