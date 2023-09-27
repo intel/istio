@@ -57,7 +57,7 @@ jobs:
     - name: Push Containers With Tag
       if: ${{ github.ref_type == 'tag' }}
       run: |
-        make push
+        VERSION=${TAG} make push
       env:
         TAG: ${{ github.ref_name }}
 
