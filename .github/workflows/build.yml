@@ -25,7 +25,7 @@ jobs:
 
     - name: Build Containers
       run: |
-        make docker
+        VERSION=${TAG} make docker
 
     - name: Build Container Proxyv2
       run: |
@@ -33,8 +33,14 @@ jobs:
       env:
         UPDATE_BRANCH: ${{ github.base_ref || github.ref_name }} 
 
+    - name: Build Container Ztunnel
+      run: |
+        ./.github/workflows/build_ztunnel.sh
+      env:
+        UPDATE_BRANCH: ${{ github.base_ref || github.ref_name }} 
+
     - name: Login to the container registry
-      uses: docker/login-action@v2.1.0
+      uses: docker/login-action@v3
       with:
         registry: ${{ env.HUB }}
         username: ${{ github.repository_owner }}
@@ -50,10 +56,15 @@ jobs:
       run: |
         docker push ${HUB}/proxyv2:${TAG}
 
+    - name: Push Container Ztunnel
+      if: ${{ github.event_name == 'push' && github.ref_type != 'tag' }}
+      run: |
+        docker push ${HUB}/ztunnel:${TAG}
+
     - name: Push Containers With Tag
       if: ${{ github.ref_type == 'tag' }}
       run: |
-        make push
+        VERSION=${TAG} make push
       env:
         TAG: ${{ github.ref_name }}
 
@@ -63,8 +74,20 @@ jobs:
         docker push ${HUB}/proxyv2:${TAG}
       env:
         TAG: ${{ github.ref_name }}
+
+    - name: Push Container Ztunnel With Tag
+      if: ${{ github.ref_type == 'tag' }}
+      run: |
+        docker push ${HUB}/ztunnel:${TAG}
+      env:
+        TAG: ${{ github.ref_name }}
     
     - name: Cleanup Image Resources
       if: always()
       run: |
-        docker system prune -f && docker volume rm $(docker volume ls -q --filter dangling=true)
+        docker system prune -a -f && docker volume rm $(docker volume ls -q --filter dangling=true)
+
+    - name: Check disk space at ending
+      if: always()
+      run: |
+        echo "disk space at ending of build:" & df -h
