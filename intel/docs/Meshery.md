@@ -38,7 +38,7 @@ $ docker compose -f ~/.meshery/meshery.yaml up
 
 ## Access and Login Meshery
 
-Visit Meshery’s web-based user interface http://<hostname>:9081. 
+Visit Meshery’s web-based user interface http://\<hostname\>:9081. 
 
 ![Access-meshery](./images/acess-meshery.png)
 
@@ -137,6 +137,31 @@ performance profile and run the send the HTTPs load tests as shown below:
 All Grafana dashboards and its panels should appear in the menu.
 
 ![prometheus-3](./images/prometheus-3.png)
+
+## A Preview of Meshery’s beta feature MeshMap
+
+MeshMap which is one of the extensions of Meshery, it provides a visual way of interacting with our infrastructure through two of its modes: Designer and Visualizer.
+This guide will give a preview about how to use Meshery MeshMap to drag-and-drop our designs and any other resources, deploy them to our cluster and ultimately verify
+the deployment visually.
+
+![meshmap-preview](./images/meshmap-preview.png)
+
+In Design page, you can create your own Meshery design by draging and droping resources or use directly design created by others. For example, you can search the desgin "QAT-TLS-handshake-acceleration-for-Istio" and you will see all the components in the design. 
+
+![meshmap-qat](./images/meshmap-qat.png)
+
+You can also merge another design into the current design. For example, you can also deploy GuestBook app design at the same time as you deploy QAT acceleration design.
+
+![meshmap-merge](./images/meshmap-merge.png)
+
+Then you can check for errors and deploy the design in cluster.
+
+![meshmap-check](./images/meshmap-check.png)
+
+Finally, let's navigate to the Visualize page which is a readonly way of interacting with the Kubernetes environment, it gives a logically representation of the entire cluster and the resources which were discovered within its environment, you can check the deployment of design and you can also perform some actions such as starting a performance test, starting a terminal session or streams logs.
+
+![meshmap-visualizer](./images/meshmap-visualizer.png)
+
 
 ## Clean up
 
