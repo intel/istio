@@ -6,3 +6,4 @@
    docs/Meshery
    docs/SGX-gateway
    docs/Grafana-Dashboard
+   docs/Kiali
