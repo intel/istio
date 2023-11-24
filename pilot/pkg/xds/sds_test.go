@@ -401,6 +401,7 @@ func TestPrivateKeyProviderProxyConfig(t *testing.T) {
 								Seconds: 0,
 								Nanos:   10000,
 							},
+							Fallback: false,
 						},
 					},
 				},
