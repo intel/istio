@@ -13,6 +13,18 @@ Intel managed distribution of Envoy is a project aiming to showcase and integrat
 * [Private key protection with SGX](docs/envoy-sgx.md)
 * [Connection balancer with DLB](https://www.envoyproxy.io/docs/envoy/latest/configuration/other_features/dlb)
 
+## build
+
+Use the following command for building envoy with Intel features:
+
+```bash
+# run test and build
+./ci/run_envoy_docker.sh "./ci/do_ci.sh release"  
+
+# only build envoy
+./ci/run_envoy_docker.sh "./ci/do_ci.sh release.server_only" 
+```
+
 # Intel managed distribution of Istio
 
 Intel managed distribution of Istio is a project aiming to showcase and integrate various Intel technologies into Istio with Intel managed distribution of Envoy. The focus is in letting both upstream community and users know what Intel is working on, finding gaps in upstream project features in relation to hardware enablement, and testing and deploying Intel features for Istio service mesh.
