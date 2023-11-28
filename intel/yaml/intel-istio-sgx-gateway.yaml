@@ -14,6 +14,8 @@ spec:
             value: clusterissuers.cert-manager.io/istio-system
           - name: CERT_SIGNER_DOMAIN
             value: clusterissuers.cert-manager.io
+          # - name: EXTERNAL_CA
+          #   value: ISTIOD_RA_KUBERNETES_API
           - name: PILOT_CERT_PROVIDER
             value: k8s.io/clusterissuers.cert-manager.io/istio-system
         overlays:
@@ -30,8 +32,12 @@ spec:
                   - signers
                   verbs:
                   - approve
-                  - update
+                  - get
+                  - list
                   - patch
+                  - delete
+                  - watch
+                  - update
   meshConfig:
     defaultConfig:
       proxyMetadata:
@@ -60,11 +66,11 @@ spec:
         certSigners:
         - clusterissuers.cert-manager.io/istio-system
   values:
+    global:
+      imagePullPolicy: IfNotPresent 
     pilot:
       env:
         EXTERNAL_CA: ISTIOD_RA_KUBERNETES_API
-    global:
-      imagePullPolicy: IfNotPresent
     sidecarInjectorWebhook:
       templates:
         sgx: |
@@ -75,7 +81,7 @@ spec:
             containers:
             - name: sdsserver
               image: intel/hsm-sds-server:1.19.0
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: IfNotPresent 
               lifecycle:
                 postStart:
                   exec:
@@ -90,7 +96,7 @@ spec:
                   cpu: 200m
                   memory: 300Mi
                   sgx.intel.com/enclave: 1
-                  sgx.intel.com/epc: 1Mi    
+                  sgx.intel.com/epc: 1Mi
               env:
               - name: NEED_QUOTE
                 value: "false"
@@ -151,7 +157,7 @@ spec:
                   sgx.intel.com/epc: 1Mi
                 requests:
                   sgx.intel.com/enclave: 1
-                  sgx.intel.com/epc: 1Mi 
+                  sgx.intel.com/epc: 1Mi
               env:
               - name: CERT_SIGNER_NAME
                 value: clusterissuers.cert-manager.io/istio-system
@@ -170,4 +176,70 @@ spec:
               name: sgx-libraries
             - emptyDir:
               name: ctk-tokens
-
+    gateways:
+      istio-ingressgateway:
+        podAnnotations:
+          sgx.intel.com/quote-provider: aesmd
+        additionalContainers:
+          - name: sdsserver
+            image: intel/hsm-sds-server:1.19.0
+            imagePullPolicy: IfNotPresent 
+            lifecycle:
+              postStart:
+                exec:
+                  command: ["/bin/sh", "-c", "./home/istio-proxy/prepare.sh"]
+            resources:
+              limits:
+                cpu: 200m
+                memory: 500Mi
+                sgx.intel.com/enclave: 1
+                sgx.intel.com/epc: 1Mi
+              requests:
+                cpu: 200m
+                memory: 300Mi
+                sgx.intel.com/enclave: 1
+                sgx.intel.com/epc: 1Mi
+            env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: MANUAL_OPS 
+              value: "true"
+            - name: NEED_QUOTE
+              value: "false"
+            - name: RANDOM_NONCE
+              value: "false"
+            - name: CERT_SIGNER_NAME
+              value: clusterissuers.cert-manager.io/istio-system
+            - name: CERT_SIGNER_DOMAIN
+              value: clusterissuers.cert-manager.io
+            # - name: EXTERNAL_CA
+            #   value: ISTIOD_RA_KUBERNETES_API
+            - name: PILOT_CERT_PROVIDER
+              value: k8s.io/clusterissuers.cert-manager.io/istio-system
+            volumeMounts:
+            - name: workload-socket
+              mountPath: /var/run/secrets/workload-spiffe-uds
+            - name: credential-socket
+              mountPath: /var/run/secrets/credential-uds
+            - name: sgx-libraries
+              mountPath: /home/istio-proxy/sgx/lib
+            - name: podinfo
+              mountPath: /etc/istio/pod
+            - name: istio-token
+              mountPath: /var/run/secrets/tokens
+            - name: istiod-ca-cert
+              mountPath: /var/run/secrets/istio
+            - name: istio-data
+              mountPath: /var/lib/istio/data
+            - name: ctk-tokens
+              mountPath: /opt/intel/cryptoapitoolkit/tokens
