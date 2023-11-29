@@ -11,7 +11,7 @@ Intel managed distribution of Envoy is a project aiming to showcase and integrat
 * [Private key protection with SGX](docs/envoy-sgx.md)
 * [Connection balancer with DLB](https://www.envoyproxy.io/docs/envoy/latest/configuration/other_features/dlb)
 
-## build
+## Build
 
 Use the following command for building envoy with Intel features:
 
@@ -21,6 +21,15 @@ Use the following command for building envoy with Intel features:
 
 # only build envoy
 ./ci/run_envoy_docker.sh "./ci/do_ci.sh release.server_only" 
+```
+
+## Run
+
+Intel managed distribution of Envoy docker image is uploaded in public Intel Dockerhub and
+you can run directly using following command:
+
+```
+docker run intel/envoy:1.19.0-intel.0
 ```
 
 # Intel managed distribution of Istio
