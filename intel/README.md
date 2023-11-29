@@ -4,6 +4,8 @@ Intel managed distribution of Envoy is a project aiming to showcase and integrat
 
 ## Features
 
+Each feature need to be installed (enabled) to take effect, as described in respective pages.
+
 * [TLS handshake acceleration with AVX512 (CryptoMB)](docs/envoy-cryptomb.md)
 * [TLS handshake acceleration with QAT2.0](docs/envoy-qat.md)
 * [HTTP data compression acceleration with QATzip](docs/envoy-qatzip.md)
@@ -13,7 +15,7 @@ Intel managed distribution of Envoy is a project aiming to showcase and integrat
 * [Private key protection with SGX](docs/envoy-sgx.md)
 * [Connection balancer with DLB](https://www.envoyproxy.io/docs/envoy/latest/configuration/other_features/dlb)
 
-## build
+## Build
 
 Use the following command for building envoy with Intel features:
 
@@ -25,11 +27,22 @@ Use the following command for building envoy with Intel features:
 ./ci/run_envoy_docker.sh "./ci/do_ci.sh release.server_only" 
 ```
 
+## Run
+
+Intel managed distribution of Envoy docker image is uploaded in public Intel Dockerhub and
+you can run directly using following command:
+
+```
+docker run intel/envoy:1.19.0-intel.0
+```
+
 # Intel managed distribution of Istio
 
 Intel managed distribution of Istio is a project aiming to showcase and integrate various Intel technologies into Istio with Intel managed distribution of Envoy. The focus is in letting both upstream community and users know what Intel is working on, finding gaps in upstream project features in relation to hardware enablement, and testing and deploying Intel features for Istio service mesh.
 
 ## Features
+
+Each feature need to be installed (enabled) to take effect, as described in respective pages.
 
 * [TLS handshake acceleration with AVX512 (CryptoMB)](docs/CRYPTOMB.md)
 * [TLS handshake acceleration with QAT2.0](docs/QAT.md)
