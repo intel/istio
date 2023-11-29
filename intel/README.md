@@ -7,9 +7,7 @@ Intel managed distribution of Envoy is a project aiming to showcase and integrat
 * [TLS handshake acceleration with AVX512 (CryptoMB)](docs/envoy-cryptomb.md)
 * [TLS handshake acceleration with QAT2.0](docs/envoy-qat.md)
 * [HTTP data compression acceleration with QATzip](docs/envoy-qatzip.md)
-* [HTTP data compression acceleration with QATzstd](docs/envoy-qatzstd.md)
 * [Regular expressions with Hyperscan](docs/envoy-hyperscan.md)
-* [HTTP/2 and HTTP/2 header compression algorithm HPACK with AVX512](docs/envoy-nghttp2.md)
 * [Private key protection with SGX](docs/envoy-sgx.md)
 * [Connection balancer with DLB](https://www.envoyproxy.io/docs/envoy/latest/configuration/other_features/dlb)
 

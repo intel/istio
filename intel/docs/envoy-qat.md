@@ -76,24 +76,3 @@ the [QAT provider](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions
                 poll_delay:
                   nanos: 5000000
 ```
-
-To enable CryptoMB on HTTP3(QUIC), the [QUIC downstream transport socket](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/quic/v3/quic_transport.proto#extensions-transport-sockets-quic-v3-quicdownstreamtransport) should be used, all other parts are same with HTTP1 and HTTP2. The configuration example for HTTP3(QUIC) as below:
-
-```yaml
-  transport_socket:
-    name: envoy.transport_sockets.tls
-    typed_config:
-      "@type": type.googleapis.com/envoy.extensions.transport_sockets.quic.v3.QuicDownstreamTransport
-      common_tls_context:
-        tls_certificates:
-        certificate_chain:
-          filename: "/home/hejiexu/cert/server.pem"
-        private_key_provider:
-          provider_name: cryptomb
-          typed_config:  
-            "@type": type.googleapis.com/envoy.extensions.private_key_providers.qat.v3alpha.QatPrivateKeyMethodConfig
-            private_key:
-              filename: "/home/hejiexu/cert/server-key.pem"
-            poll_delay:
-              nanos: 5000000
-```
