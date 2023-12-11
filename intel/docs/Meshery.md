@@ -4,6 +4,8 @@
 
 Meshery is the open source, cloud native management plane that enables the adoption, operation, and management of Kubernetes, any service mesh, and their workloads.
 
+**Note**: Meshery is still under rapid development, features may change in new versions, please see the Meshery documentation for more information: https://docs.meshery.io/
+
 ### The benefit to use Meshery to deploy and manage Istio
 
 Meshery offers us with an intuitive, visual, and convenient way to deploy Intel Accelerated Istio with one button and run performance tests to intuitively demonstrate the performance acceleration of Intel Istio.
