@@ -37,6 +37,20 @@ jobs:
       env:
         UPDATE_BRANCH: ${{ github.base_ref || github.ref_name }} 
 
+    - name: Install Trivy
+      run: |
+        wget https://github.com/aquasecurity/trivy/releases/download/v0.44.1/trivy_0.44.1_Linux-64bit.tar.gz
+        tar zxvf trivy_0.44.1_Linux-64bit.tar.gz
+        sudo mv trivy /usr/local/bin/
+    
+    - name: Run Trivy in GitHub SBOM mode and submit results to Dependency Graph
+      uses: aquasecurity/trivy-action@0.11.2
+      with:
+        image-ref: ${HUB}/proxyv2:${TAG}
+        format: 'github'
+        output: 'dependency-results.sbom.json'
+        github-pat: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Login to the container registry
       uses: docker/login-action@v2.1.0
       with:
