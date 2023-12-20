@@ -12,7 +12,7 @@ replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.5
 // bindings
 replace github.com/envoyproxy/go-control-plane => github.com/intel/envoy-go-control-plane v0.10.3-0.20230902024843-23d1ce0c51b7
 
-replace istio.io/api => github.com/intel/istio-api v0.0.0-20230906055826-8687bf0ca523
+replace istio.io/api => github.com/intel/istio-api v0.0.0-20231220083714-839e78b83d4d
 
 require (
 	cloud.google.com/go/compute/metadata v0.2.3
