@@ -31,7 +31,7 @@ Intel managed distribution of Envoy docker image is uploaded in public Intel Doc
 you can run directly using following command:
 
 ```
-docker run intel/envoy:1.19.0-intel.0
+docker run intel/envoy:1.19.5-intel.0
 ```
 
 # Intel managed distribution of Istio
@@ -64,4 +64,4 @@ Each feature need to be installed (enabled) to take effect, as described in resp
 Use the follwoing command for basic installation:
 
 ```bash
-istioctl install --set hub=docker.io/intel --set tag=1.19.0-intel.0
+istioctl install --set hub=docker.io/intel --set tag=1.19.5-intel.0

@@ -5,7 +5,7 @@ metadata:
 spec:
   profile: default
   hub: "intel"
-  tag: "1.19.0-intel.0"
+  tag: "1.19.5-intel.0"
   components:
     pilot:
       k8s:
