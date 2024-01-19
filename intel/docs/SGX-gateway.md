@@ -70,6 +70,7 @@ $ kubectl get clusterissuers istio-system -o jsonpath='{.spec.ca.secretName}' | 
 You can also customize the `intel-istio-sgx-gateway.yaml` according to your needs. If you want do the quote verification, you can set the `NEED_QUOTE` env as `true`. And if you are using the TCS v1alpha1 api, you should set the `RANDOM_NONCE` as `false`.
 
 ```sh
+git clone -b 1.19.5-intel.0 --depth 1 https://github.com/intel/istio
 istioctl install -f ./intel/yaml/intel-istio-sgx-gateway.yaml -y
 ```
 

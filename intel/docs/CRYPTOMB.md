@@ -25,6 +25,12 @@ CryptoMB means using Intel® Advanced Vector Extensions 512 (Intel® AVX-512) in
 
 ## Install
 
+Clone the Intel managed distribution of Istio repo:
+
+```
+git clone -b 1.19.5-intel.0 --depth 1 https://github.com/intel/istio
+```
+
 Use the following command for the installation:
 
 ```bash

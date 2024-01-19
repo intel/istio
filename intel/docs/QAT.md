@@ -64,6 +64,12 @@ sudo systemctl restart containerd
 
 ## Istio install with QAT
 
+Clone the Intel managed distribution of Istio repo:
+
+```
+git clone -b 1.19.5-intel.0 --depth 1 https://github.com/intel/istio
+```
+
 Use the following command for the Istio installation:
 
 ```bash

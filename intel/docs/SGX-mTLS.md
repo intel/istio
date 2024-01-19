@@ -73,6 +73,7 @@ $ kubectl apply -f https://github.com/intel/trusted-certificate-issuer/tree/main
 - Install Istio
 
 ```sh
+$ git clone -b 1.19.5-intel.0 --depth 1 https://github.com/intel/istio
 $ istioctl install -f ./deployment/istio-configs/istio-hsm-config.yaml -y
 ```
 
