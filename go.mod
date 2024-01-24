@@ -53,7 +53,7 @@ require (
 	github.com/josharian/native v1.1.0
 	github.com/kr/pretty v0.3.1
 	github.com/kylelemons/godebug v1.1.0
-	github.com/lestrrat-go/jwx v1.2.27
+	github.com/lestrrat-go/jwx v1.2.28
 	github.com/mattn/go-isatty v0.0.20
 	github.com/miekg/dns v1.1.57
 	github.com/mitchellh/copystructure v1.2.0
