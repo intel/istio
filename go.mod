@@ -58,7 +58,7 @@ require (
 	github.com/miekg/dns v1.1.57
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/moby/buildkit v0.12.4
+	github.com/moby/buildkit v0.12.5
 	github.com/onsi/gomega v1.30.0
 	github.com/openshift/api v0.0.0-20231213232254-1029f2d5339f
 	github.com/pires/go-proxyproto v0.7.0
