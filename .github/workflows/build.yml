@@ -22,6 +22,10 @@ jobs:
       TAG: ${{ github.base_ref || github.ref_name }} 
     steps:
     - uses: actions/checkout@v3.3.0
+    
+    - name: Copy Licenses
+      run: |
+        ./.github/workflows/copy-license.sh
 
     - name: Build Containers
       run: |
