@@ -24,6 +24,8 @@ code repositories:
 
 * https://github.com/intel/istio-proxy
 
+* https://github.com/intel/ztunnel
+
 ## Project goals and relation to upstream projects
 
 The goal of the project is not to maintain permanent Istio and Envoy
