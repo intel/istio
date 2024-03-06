@@ -15,7 +15,7 @@ html_title = 'Intel managed distribution of Istio'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = ['recommonmark', 'sphinx_rtd_theme', 'sphinx_markdown_tables']
-source_suffix = {'.rst': 'restructuredtext','.md': 'markdown'}
+source_suffix = {'.rst': 'restructuredtext', '.md': 'markdown'}
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -24,4 +24,4 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-#html_static_path = ['_static']
+# html_static_path = ['_static']
