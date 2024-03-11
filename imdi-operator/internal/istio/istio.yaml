@@ -23,7 +23,7 @@ spec:
     ingressGateways:
     - name: istio-ingressgateway
       enabled: true
-      namespace: default
+      namespace: istio-system
       k8s:
         overlays:
         - kind: Deployment

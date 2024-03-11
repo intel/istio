@@ -27,7 +27,7 @@ spec:
     {{- range $specindex, $specgateway :=  $Specgateways}}
     - name: {{ $specgateway.name }}
       enabled: {{ $specgateway.enabled }}
-      namespace: {{ $specgateway.namespace | default "default" }}
+      namespace: {{ $specgateway.namespace | default "istio-system" }}
       k8s:
         overlays:
         - kind: Deployment
