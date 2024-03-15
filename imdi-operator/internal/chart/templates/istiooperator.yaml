@@ -2,7 +2,7 @@ apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 spec:
   profile: {{.Values.spec.profile | default "default" }}
-  tag: {{.Values.spec.tag | default "1.18.0-intel.0-rc.1" | quote }}
+  tag: {{.Values.spec.tag | default "1.21.0-intel.0" | quote }}
   hub: {{.Values.spec.hub | default "ccr-registry.caas.intel.com/intel-istio/istio" | quote }}
   meshConfig:
   # Enable for envoy debugging

@@ -66,7 +66,7 @@ $ kubectl get clusterissuers istio-system -o jsonpath='{.spec.ca.secretName}' | 
 
 - Install Istio
 
-> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.19.0-intel.0` since only that contains Istio manifest enhancements for SGX mTLS.
+> NOTE: for the below command you need to use the `istioctl` for the `docker.io/intel/istioctl:1.21.0-intel.0` since only that contains Istio manifest enhancements for SGX mTLS.
 You can also customize the `intel-istio-sgx-gateway.yaml` according to your needs. If you want do the quote verification, you can set the `NEED_QUOTE` env as `true`. And if you are using the TCS v1alpha1 api, you should set the `RANDOM_NONCE` as `false`.
 
 ```sh
