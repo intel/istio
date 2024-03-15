@@ -55,8 +55,8 @@ Each feature need to be installed (enabled) to take effect, as described in resp
 * [Kiali](docs/Kiali.md)
 
 ## Supported versions
-* Kubernetes v1.24
-* Istio v1.15
+* Kubernetes v1.28
+* Istio v1.21
 * cert-manager v1.7 or later
 * Linux kernel 5.18 or later
 * Intel Device Plugins for Kubernetes v0.24
