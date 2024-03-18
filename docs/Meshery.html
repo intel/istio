@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Use Meshery to deploy and manage Istio with Intel Features &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Grafana Dashboard" href="Grafana-Dashboard.html" />
+    <link rel="prev" title="Istio Gateway Private Key Protection with SGX" href="SGX-gateway.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../features.html">Features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="QAT.html">Istio crypto and compression acceleration with QAT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CRYPTOMB.html">Istio acceleration with Intel® AVX512 crypto instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SGX-mTLS.html">Istio mTLS Private Key Protection with SGX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SGX-gateway.html">Istio Gateway Private Key Protection with SGX</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Use Meshery to deploy and manage Istio with Intel Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Grafana-Dashboard.html">Grafana Dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Kiali.html">Kiali</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../features.html">Features</a></li>
+      <li class="breadcrumb-item active">Use Meshery to deploy and manage Istio with Intel Features</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/Meshery.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="use-meshery-to-deploy-and-manage-istio-with-intel-features">
+<h1>Use Meshery to deploy and manage Istio with Intel Features<a class="headerlink" href="#use-meshery-to-deploy-and-manage-istio-with-intel-features" title="Link to this heading"></a></h1>
+<section id="meshery-introduction">
+<h2>Meshery Introduction<a class="headerlink" href="#meshery-introduction" title="Link to this heading"></a></h2>
+<p>Meshery is the open source, cloud native management plane that enables the adoption, operation, and management of Kubernetes, any service mesh, and their workloads.</p>
+<p><strong>Note</strong>: Meshery is still under rapid development, features may change in new versions, please see the Meshery documentation for more information: https://docs.meshery.io/</p>
+<section id="the-benefit-to-use-meshery-to-deploy-and-manage-istio">
+<h3>The benefit to use Meshery to deploy and manage Istio<a class="headerlink" href="#the-benefit-to-use-meshery-to-deploy-and-manage-istio" title="Link to this heading"></a></h3>
+<p>Meshery offers us with an intuitive, visual, and convenient way to deploy Intel Accelerated Istio with one button and run performance tests to intuitively demonstrate the performance acceleration of Intel Istio.</p>
+</section>
+</section>
+<section id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Link to this heading"></a></h2>
+<p><img alt="Architecture" src="../_images/Architecture.png" /></p>
+</section>
+<section id="install-meshery">
+<h2>Install Meshery<a class="headerlink" href="#install-meshery" title="Link to this heading"></a></h2>
+<p>You can use one of below 3 options:</p>
+<p><strong>Install on Kubernetes</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -L https://meshery.io/install | PLATFORM=kubernetes bash -
+</pre></div>
+</div>
+<p><strong>Install on Docker</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -L https://meshery.io/install | PLATFORM=docker bash -  
+</pre></div>
+</div>
+<p><strong>Install via Docker Compose</strong>:</p>
+<p>If you want more personalized configurations, such as setting proxies, please edit “.meshery/meshery.yaml”, then setup Meshery via docker compose:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker compose -f ~/.meshery/meshery.yaml up
+</pre></div>
+</div>
+</section>
+<section id="access-and-login-meshery">
+<h2>Access and Login Meshery<a class="headerlink" href="#access-and-login-meshery" title="Link to this heading"></a></h2>
+<p>Visit Meshery’s web-based user interface http://&lt;hostname&gt;:9081.</p>
+<p><img alt="Access-meshery" src="../_images/acess-meshery.png" /></p>
+</section>
+<section id="configure-connection-to-kubernetes">
+<h2>Configure Connection to Kubernetes<a class="headerlink" href="#configure-connection-to-kubernetes" title="Link to this heading"></a></h2>
+<p>Meshery attempts to auto detect your kubeconfig if it is stored in the default path ($HOME/.kube) on your system. In most deployments, Meshery will automatically connect to your Kubernetes cluster. If your config has not been auto-detected, or you want to connect remote Kubernetes cluster, you can manually locate and upload your kube config file and select the context name (docker-desktop, kind-clsuter, minikube etc.)</p>
+<p><img alt="Connect-k8s-cluster" src="../_images/connect-k8s-cluster.png" /></p>
+</section>
+<section id="meshery-design">
+<h2>Meshery Design<a class="headerlink" href="#meshery-design" title="Link to this heading"></a></h2>
+<p>Meshery Designs contain patterns and configurations that describe how we will deploy Istio.
+Currently, we have published two Meshery Designs in Meshery Catalog website which you can import and deploy using Meshery directly:</p>
+<ul>
+<li><p><a class="reference external" href="https://raw.githubusercontent.com/meshery/meshery.io/master/catalog/28715e69-c6c1-4f96-bfa2-05113b00bae0.yaml">CRYPTOMB-TLS-HANDSHAKE-ACCELERATION-FOR-ISTIO</a>:</p>
+<p>CryptoMB means using Intel® Advanced Vector Extensions 512 (Intel® AVX-512) instructions using a SIMD (single instruction, multiple data) mechanism. Up to eight RSA or ECDSA operations are gathered into a buffer and processed at the same time, providing potentially improved performance. Intel AVX-512 instructions are available on recently launched 3rd generation Intel Xeon Scalable processor server processors, or later. With this Meshery Design, you can install Istio and enable CryptoMB to achieve performance improvements and accelerated handshakes.</p>
+</li>
+<li><p><a class="reference external" href="https://raw.githubusercontent.com/meshery/meshery.io/master/catalog/05e97933-90a6-4dd3-9b29-18e78eb4d3f1.yaml">QAT-TLS-HANDSHAKE-ACCELERATION-FOR-ISTIO</a>:</p>
+<p>Intel® QuickAssist Technology (QAT) provides hardware acceleration to offload the security and authentication burden from the CPU, significantly improving the performance and efficiency of standard platform solutions. With this Meshery design, you can install the Intel® QAT Device Plugin and Istio and enable QAT cryptographic acceleration for the TLS handshake in the Istio ingressgateway. This design is only available for Intel® Xeon CPUs with QAT devices enabled.</p>
+</li>
+</ul>
+<section id="import-meshery-design">
+<h3>Import Meshery Design<a class="headerlink" href="#import-meshery-design" title="Link to this heading"></a></h3>
+<p>Take the CryptoMB TLS Handshake acceleration as example, you can import its url directly from Meshery Design page:</p>
+<p><img alt="meshery-design" src="../_images/meshery-design.png" /></p>
+<p>Or, you can download the design from the url and edit it as you like, then upload it to Meshery.</p>
+</section>
+<section id="deploy-meshery-design">
+<h3>Deploy Meshery Design<a class="headerlink" href="#deploy-meshery-design" title="Link to this heading"></a></h3>
+<p>After importing Meshery Design, you can deploy it in the current cluster:</p>
+<p><img alt="design-deployment" src="../_images/design-deployment.png" /></p>
+<p>It will install Istio using Istio Operator and enable CryptoMB TLS Handshake acceleration in Istio Ingressgateway.</p>
+<p><img alt="desing-check" src="../_images/design-check.png" /></p>
+</section>
+</section>
+<section id="applications-backend-server">
+<h2>Applications/Backend Server<a class="headerlink" href="#applications-backend-server" title="Link to this heading"></a></h2>
+<p>You can configure automatic sidecar injection for a namespace. Then, you can deploy sample applications:</p>
+<p><img alt="automatic-sidecar-injection" src="../_images/automatic-sidecar-injection.png" />
+<img alt="sample-application.png" src="../_images/sample-application.png" /></p>
+<p>You can also import your own applications from Meshery applications page via Helm Chart, Docker Compose and Kubernetes Manifests.
+Here is an example file of Kuberenetes Manifests that contains a backend server for benchmarking tests called “Fortio Server”:
+<a class="reference external" href="https://raw.githubusercontent.com/intel/istio/release-1.19-intel/intel/yaml/fortio-server-manifests.yaml">fortio-server-manifests.yaml</a></p>
+<p><img alt="fortio-server-manifests" src="../_images/fortio-server-manifests.png" />
+<img alt="fortio-server-manifests-1" src="../_images/fortio-server-manifests-1.png" /></p>
+</section>
+<section id="run-a-performance-test">
+<h2>Run a performance test<a class="headerlink" href="#run-a-performance-test" title="Link to this heading"></a></h2>
+<section id="performance-profile">
+<h3>Performance profile<a class="headerlink" href="#performance-profile" title="Link to this heading"></a></h3>
+<p>Meshery UI provides an easy-to-use interface in which you can create performance profiles to run repeated tests with similar configuration and can also even schedule performance tests to be run at particular times through the calendar.</p>
+<p>On the navigation menu, click on performance.</p>
+<p>This will open the performance management dashboard and you can run the performance test with your own profile:</p>
+<p><img alt="performance-profile" src="../_images/performance-profile.png" /></p>
+<p>More detailes: https://docs.meshery.io/guides/performance-management</p>
+</section>
+<section id="run-a-performance-test-with-tls-enabled-in-istio-ingressgateway">
+<h3>Run a performance test with TLS enabled in Istio Ingressgateway<a class="headerlink" href="#run-a-performance-test-with-tls-enabled-in-istio-ingressgateway" title="Link to this heading"></a></h3>
+<p>From above example, we use Meshery design to deploy Istio and enable CryptoMB TLS Handshake acceleration in Istio Ingressgateway.
+Therefore, we need to send HTTPs requests and upload the certificate to Istio Ingressgateway. Assuming you already have a application
+backbend running in Istio and exposed them with HTTPs protocul using Istio gateway. You can upload the certificate in Meshery
+performance profile and run the send the HTTPs load tests as shown below:</p>
+<p><img alt="http_load_tests" src="../_images/https_load_tests.png" /></p>
+</section>
+</section>
+<section id="grafana-dashboard-integration-with-meshery">
+<h2>Grafana Dashboard Integration with Meshery<a class="headerlink" href="#grafana-dashboard-integration-with-meshery" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p><strong>Prerequisites:</strong></p>
+<p>Prometheus and Grafana installed: https://github.com/intel/istio/blob/release-1.18-intel/intel/docs/Grafana-Dashboard.md</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Login To Grafana and retrieve API Key from Settings.</p></li>
+<li><p>Access Meshery UI using Meshery service LB address.</p></li>
+<li><p>Go to Settings http://LB-IP-address/settings#metrics -&gt; Grafana/Prometheus</p></li>
+<li><p>Input address of Prometheus service in Prometheus section. Check the connectivity by pinging the address button.</p></li>
+</ul>
+<p><img alt="prometheus-1" src="../_images/prometheus-1.png" /></p>
+<ul class="simple">
+<li><p>Load custom config file of the dashboard to fetch the panels.</p></li>
+</ul>
+<p><img alt="prometheus-2" src="../_images/prometheus-2.png" /></p>
+<ul class="simple">
+<li><p>Input address of Grafana service in Grafana section. Check the connectivity by pinging the address button.</p></li>
+</ul>
+<p>All Grafana dashboards and its panels should appear in the menu.</p>
+<p><img alt="prometheus-3" src="../_images/prometheus-3.png" /></p>
+</section>
+<section id="a-preview-of-mesherys-beta-feature-meshmap">
+<h2>A Preview of Meshery’s beta feature MeshMap<a class="headerlink" href="#a-preview-of-mesherys-beta-feature-meshmap" title="Link to this heading"></a></h2>
+<p>MeshMap which is one of the extensions of Meshery, it provides a visual way of interacting with our infrastructure through two of its modes: Designer and Visualizer.
+This guide will give a preview about how to use Meshery MeshMap to drag-and-drop our designs and any other resources, deploy them to our cluster and ultimately verify
+the deployment visually.</p>
+<p><img alt="meshmap-preview" src="../_images/meshmap-preview.png" /></p>
+<p>In Design page, you can create your own Meshery design by draging and droping resources or use directly design created by others. For example, you can search the desgin “QAT-TLS-handshake-acceleration-for-Istio” and you will see all the components in the design.</p>
+<p><img alt="meshmap-qat" src="../_images/meshmap-qat.png" /></p>
+<p>You can also merge another design into the current design. For example, you can also deploy GuestBook app design at the same time as you deploy QAT acceleration design.</p>
+<p><img alt="meshmap-merge" src="../_images/meshmap-merge.png" /></p>
+<p>Then you can check for errors and deploy the design in cluster.</p>
+<p><img alt="meshmap-check" src="../_images/meshmap-check.png" /></p>
+<p>Finally, let’s navigate to the Visualize page which is a readonly way of interacting with the Kubernetes environment, it gives a logically representation of the entire cluster and the resources which were discovered within its environment, you can check the deployment of design and you can also perform some actions such as starting a performance test, starting a terminal session or streams logs.</p>
+<p><img alt="meshmap-visualizer" src="../_images/meshmap-visualizer.png" /></p>
+</section>
+<section id="clean-up">
+<h2>Clean up<a class="headerlink" href="#clean-up" title="Link to this heading"></a></h2>
+<p>Clean up Meshery Design:</p>
+<p><img alt="clean-up-design" src="../_images/clean-up-design.png" /></p>
+<p>Clean up Istio:</p>
+<p><img alt="clean-up-istio" src="../_images/clean-up-istio.png" /></p>
+<p>Clean up Meshery:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesheryctl</span> <span class="n">system</span> <span class="n">stop</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">-</span><span class="n">f</span> <span class="o">~/.</span><span class="n">meshery</span><span class="o">/</span><span class="n">meshery</span><span class="o">.</span><span class="n">yaml</span> <span class="n">down</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="SGX-gateway.html" class="btn btn-neutral float-left" title="Istio Gateway Private Key Protection with SGX" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Grafana-Dashboard.html" class="btn btn-neutral float-right" title="Grafana Dashboard" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

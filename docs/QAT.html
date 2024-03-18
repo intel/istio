@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Istio crypto and compression acceleration with QAT &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Istio acceleration with Intel® AVX512 crypto instructions" href="CRYPTOMB.html" />
+    <link rel="prev" title="Features" href="../features.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../features.html">Features</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Istio crypto and compression acceleration with QAT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CRYPTOMB.html">Istio acceleration with Intel® AVX512 crypto instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SGX-mTLS.html">Istio mTLS Private Key Protection with SGX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SGX-gateway.html">Istio Gateway Private Key Protection with SGX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Meshery.html">Use Meshery to deploy and manage Istio with Intel Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Grafana-Dashboard.html">Grafana Dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Kiali.html">Kiali</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../features.html">Features</a></li>
+      <li class="breadcrumb-item active">Istio crypto and compression acceleration with QAT</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/QAT.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="istio-crypto-and-compression-acceleration-with-qat">
+<h1>Istio crypto and compression acceleration with QAT<a class="headerlink" href="#istio-crypto-and-compression-acceleration-with-qat" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>Intel® QuickAssist Technology (QAT) provides hardware acceleration for offloading security, authentication and compression services from the CPU, thus significantly increasing the performance and efficiency of standard platform solutions.</p>
+<p>In this guide you will install Istio with the following QAT features enabled:</p>
+<ul class="simple">
+<li><p>QAT crypto acceleration for TLS handshakes</p></li>
+<li><p>QAT compression acceleration for HTTP(s) data</p></li>
+</ul>
+<p>This solution is based on Linux in-tree driver and is utilizing the <a class="reference external" href="https://github.com/intel/qatlib">qatlib</a>  and <a class="reference external" href="https://github.com/intel/qatzip">qatzip</a> libraries.</p>
+</section>
+<section id="acronyms">
+<h2>Acronyms<a class="headerlink" href="#acronyms" title="Link to this heading"></a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Acronym</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>QAT</td>
+<td>Intel® QuickAssist Technology available with 4th Gen Intel® Xeon® Scalable processors</td>
+</tr>
+<tr>
+<td>cy</td>
+<td>Cryptographic</td>
+</tr>
+<tr>
+<td>dc</td>
+<td>Compression</td>
+</tr>
+</tbody>
+</table></section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Your Kubernetes nodes requires the following preparations</p>
+<ul class="simple">
+<li><p>Install Linux kernel 5.17 or similar</p></li>
+<li><p>Enable IOMMU from BIOS</p></li>
+<li><p>Enable IOMMU for Linux kernel</p></li>
+<li><p>Enhance the container runtime memory lock limit</p></li>
+<li><p>Install <a class="reference external" href="https://github.com/intel/intel-device-plugins-for-kubernetes">Intel® QAT Device Plugin for Kubernetes</a></p></li>
+</ul>
+<p>To enable IOMMU for Linux kernel, add the following change and commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cat /etc/default/grub:</span>
+<span class="go">GRUB_CMDLINE_LINUX=&quot;intel_iommu=on vfio-pci.ids=8086:4941&quot;</span>
+<span class="go">update-grub</span>
+<span class="go">reboot</span>
+</pre></div>
+</div>
+<p>Once the system is rebooted, check if the IOMMU has been enabled via the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">dmesg| grep IOMMU</span>
+<span class="go">[    1.528237] DMAR: IOMMU enabled</span>
+</pre></div>
+</div>
+<p>To enhance the <code class="docutils literal notranslate"><span class="pre">containerd</span></code> runtime memory lock limit, add the following file (CRIO has similar configuration):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo mkdir /etc/systemd/system/containerd.service.d</span>
+<span class="go">sudo bash -c &#39;cat &lt;&lt;EOF &gt;&gt;/etc/systemd/system/containerd.service.d/memlock.conf</span>
+<span class="go">[Service]</span>
+<span class="go">LimitMEMLOCK=134217728</span>
+<span class="go">EOF&#39;</span>
+</pre></div>
+</div>
+<p>Restart the container runtime (for containerd, CRIO has similar concept)</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo systemctl daemon-reload</span>
+<span class="go">sudo systemctl restart containerd</span>
+</pre></div>
+</div>
+</section>
+<section id="istio-install-with-qat">
+<h2>Istio install with QAT<a class="headerlink" href="#istio-install-with-qat" title="Link to this heading"></a></h2>
+<p>Use the following command for the Istio installation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>istioctl<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>-f<span class="w"> </span>intel/yaml/intel-istio-qat-hw.yaml
+</pre></div>
+</div>
+<p>The above command allocates single crypto (<code class="docutils literal notranslate"><span class="pre">qat.intel.com/cy</span></code>) and compression (<code class="docutils literal notranslate"><span class="pre">qat.intel.com/dc</span></code>) QAT endpoint for the <code class="docutils literal notranslate"><span class="pre">istio-ingress-gateway</span></code>. In addition, it defines Istio sidecar injection template (<code class="docutils literal notranslate"><span class="pre">sidecarInjectorWebhook</span></code>) for the sidecar QAT endpoint allocation.</p>
+<p>At this stage, the <code class="docutils literal notranslate"><span class="pre">istio-ingress-gateway</span></code> is ready for QAT crypto acceleration for TLS handshakes.</p>
+<p>To allocate QAT crypto endpoint for sidecars, add the following annotation to Kubernetes pods and/or deployments:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">inject.istio.io/templates: sidecar,qathw-crypto</span>
+</pre></div>
+</div>
+<p>With this annotation, the Istio sidecars are ready for QAT crypto acceleration for TLS handshakes.</p>
+<p>To allocate QAT compression endpoint for sidecars, add the following annotation to Kubernetes pods and/or deployments:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">inject.istio.io/templates: sidecar,qathw-compression</span>
+</pre></div>
+</div>
+<p>Enable QAT compression acceleration for <code class="docutils literal notranslate"><span class="pre">istio-ingress-gateway</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">kubectl apply -f intel/yaml/qat-compression-envoy-filter.yaml</span>
+</pre></div>
+</div>
+<p>At this stage, the <code class="docutils literal notranslate"><span class="pre">istio-ingress-gateway</span></code> is ready for QAT compression acceleration for HTTP(s) data.</p>
+<p>Enable QAT compression acceleration for <code class="docutils literal notranslate"><span class="pre">istio-proxy</span></code> sidecars:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">kubectl apply -f  intel/yaml/compression-decompression-sidecar-envoy-filter.yaml</span>
+</pre></div>
+</div>
+<p>At this stage, the Istio sidecars are ready for QAT compression acceleration for HTTP(s) data.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../features.html" class="btn btn-neutral float-left" title="Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="CRYPTOMB.html" class="btn btn-neutral float-right" title="Istio acceleration with Intel® AVX512 crypto instructions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

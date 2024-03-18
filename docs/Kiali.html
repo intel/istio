@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiali &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Grafana Dashboard" href="Grafana-Dashboard.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../features.html">Features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="QAT.html">Istio crypto and compression acceleration with QAT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CRYPTOMB.html">Istio acceleration with Intel® AVX512 crypto instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SGX-mTLS.html">Istio mTLS Private Key Protection with SGX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SGX-gateway.html">Istio Gateway Private Key Protection with SGX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Meshery.html">Use Meshery to deploy and manage Istio with Intel Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Grafana-Dashboard.html">Grafana Dashboard</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Kiali</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../features.html">Features</a></li>
+      <li class="breadcrumb-item active">Kiali</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/Kiali.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="kiali">
+<h1>Kiali<a class="headerlink" href="#kiali" title="Link to this heading"></a></h1>
+<p><a class="reference external" href="https://kiali.io/">Kiali</a> is an observability console for Istio with service mesh configuration capabilities.
+It helps you to understand the structure of your service mesh by inferring the topology, and also provides the health of your mesh.
+Kiali provides detailed metrics, and a basic Grafana integration is available for advanced queries.
+Distributed tracing is provided by integrating <a class="reference external" href="#install-jaeger">Jaeger</a>.</p>
+<section id="prerequisite">
+<h2>Prerequisite<a class="headerlink" href="#prerequisite" title="Link to this heading"></a></h2>
+<p>Before you install Kiali you must have already installed Istio along with its telemetry storage addon (i.e. <a class="reference external" href="#install-prometheus">Prometheus</a>). You might also consider installing Istio’s optional tracing addon (i.e. Jaeger) and optional Grafana addon but those are not required by Kiali.</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<section id="install-prometheus">
+<h3>Install Prometheus<a class="headerlink" href="#install-prometheus" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p><em>skip this step if prometheus already deployed</em></p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">kubectl</span> <span class="pre">apply</span> <span class="pre">-f</span> <span class="pre">https://raw.githubusercontent.com/intel/istio/release-1.19-intel/samples/addons/prometheus.yaml</span></code></p>
+</section>
+<section id="install-jaeger">
+<h3>Install Jaeger<a class="headerlink" href="#install-jaeger" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p><em>Optional. kiali integrated with jaeger will provide more visiablity for service mesh</em></p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">kubectl</span> <span class="pre">apply</span> <span class="pre">-f</span> <span class="pre">https://raw.githubusercontent.com/intel/istio/release-1.19-intel/samples/addons/jaeger.yaml</span></code></p>
+</section>
+<section id="install-kiali">
+<h3>Install Kiali<a class="headerlink" href="#install-kiali" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">kubectl</span> <span class="pre">apply</span> <span class="pre">-f</span> <span class="pre">https://raw.githubusercontent.com/intel/istio/release-1.19-intel/samples/addons/kiali.yaml</span></code></p>
+<p>Or following the <a class="reference external" href="https://kiali.io/docs/installation/installation-guide/">Kiali Installation Guide</a> documentation to deploy Kiali into your cluster.</p>
+</section>
+</section>
+<section id="generating-a-graph">
+<h2>Generating a graph<a class="headerlink" href="#generating-a-graph" title="Link to this heading"></a></h2>
+<ol>
+<li><p>To verify the service is running in your cluster, run the following command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">kubectl</span> <span class="pre">-n</span> <span class="pre">istio-system</span> <span class="pre">get</span> <span class="pre">svc</span> <span class="pre">kiali</span></code></p>
+</li>
+<li><p>To open the Kiali UI, execute the following command in your Kubernetes environment:</p>
+<p><code class="docutils literal notranslate"><span class="pre">istioctl</span> <span class="pre">dashboard</span> <span class="pre">kiali</span></code></p>
+</li>
+<li><p>View the overview of your mesh in the Overview page that appears immediately after you log in. The Overview page displays all the namespaces that have services in your mesh. The following screenshot shows a similar page:</p></li>
+</ol>
+<p><img alt="kiali-overview" src="../_images/kiali-overview.png" /></p>
+<ol class="simple">
+<li><p>To view a namespace graph, Select the Graph option in the kebab menu and choose namespaces you’d like to inspect . The kebab menu is at the top right of card and looks like 3 vertical dots. Click it to see the available options. The page looks similar to:</p></li>
+</ol>
+<p><img alt="kiali-graph" src="../_images/kiali-graph.png" /></p>
+</section>
+<section id="examining-istio-configuration">
+<h2>Examining Istio configuration<a class="headerlink" href="#examining-istio-configuration" title="Link to this heading"></a></h2>
+<p>The left menu options lead to list views for <strong>Applications</strong>, <strong>Workloads</strong>, <strong>Services</strong> and <strong>Istio Config</strong>. The following screenshot shows <em><strong>productpage</strong></em> services overview information:</p>
+<p><img alt="kiali-svc-overview" src="../_images/kiali-svc-overview.png" /></p>
+</section>
+<section id="traffic-shifting">
+<h2>Traffic Shifting<a class="headerlink" href="#traffic-shifting" title="Link to this heading"></a></h2>
+<p>You can use the Kiali traffic shifting wizard to define the specific percentage of request traffic to route to two or more workloads.</p>
+<ol class="simple">
+<li><p>View the <strong>Versioned app graph</strong> of the graph.</p>
+<ul class="simple">
+<li><p>Make sure you have enabled the <strong>Traffic Distribution</strong> Edge Label <strong>Display</strong> option to see the percentage of traffic routed to each workload.</p></li>
+<li><p>Make sure you have enabled the Show <strong>Service Nodes Display</strong> option to view the service nodes in the graph.</p></li>
+</ul>
+</li>
+</ol>
+<p><img alt="kiali-traffic-shift" src="../_images/kiali-traffic-shift.png" /></p>
+<ol class="simple">
+<li><p>Focus on the <strong>reviews</strong> service within the graph by clicking on the <strong>reviews</strong> service (triangle) node. Notice the <strong>reviews</strong> service traffic is evenly distributed to the three <strong>reviews</strong> workloads v1, v2 and v3.
+<img alt="kiali-traffic-shift-graph" src="../_images/kiali-traffic-shift-graph.png" /></p></li>
+<li><p>Click the <strong>reviews</strong> link found in the side panel to go to the detail view for the <strong>reviews</strong> service.</p></li>
+<li><p>From the <strong>Actions</strong> drop down menu, select <strong>Traffic Shifting</strong> to access the traffic shifting wizard(If <strong>Traffic Shifting</strong> is unavailable, may need <strong>Delete Traffic Routing</strong> first).</p></li>
+</ol>
+<p><img alt="kiali-service" src="../_images/kiali-service.png" /></p>
+<ol class="simple">
+<li><p>Drag the sliders to specify the percentage of traffic to route to each workload. For example, 33% to each version.</p></li>
+</ol>
+<p><img alt="kiali-traffic-shift-create" src="../_images/kiali-traffic-shift-create.png" /></p>
+<ol class="simple">
+<li><p>Click the <strong>Preview</strong> button to view the YAML that will be generated by the wizard.</p></li>
+</ol>
+<p><img alt="kiali-traffic-shift-preview" src="../_images/kiali-traffic-shift-preview.png" /></p>
+<ol>
+<li><p>Click the <strong>Create</strong> button and confirm to apply the new traffic settings.</p></li>
+<li><p>Click Graph in the left hand navigation bar to return to the graph. Notice that the <strong>reviews</strong> service node is now badged with the <em><strong>virtual service</strong></em> icon.</p></li>
+<li><p>Send requests to the bookinfo application. For example, to send one request per second, you can execute this command if you have watch installed on your system:</p>
+<p><code class="docutils literal notranslate"><span class="pre">watch</span> <span class="pre">-n</span> <span class="pre">1</span> <span class="pre">curl</span> <span class="pre">-o</span> <span class="pre">/dev/null</span> <span class="pre">-s</span> <span class="pre">-w</span> <span class="pre">%{http_code}</span> <span class="pre">$GATEWAY_URL/productpage</span></code></p>
+</li>
+<li><p>After a few minutes you will notice that the traffic percentage will reflect the new traffic route, thus confirming the fact that your new traffic route is successfully routing to 3 versioned <strong>reviews</strong> evenly.</p></li>
+</ol>
+<p><img alt="kiali-traffic-shift-configured" src="../_images/kiali-traffic-shift-configured.png" /></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Grafana-Dashboard.html" class="btn btn-neutral float-left" title="Grafana Dashboard" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

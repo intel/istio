@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Envoy acceleration with Intel® AVX512 crypto instructions &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Envoy acceleration with Intel® AVX512 crypto instructions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/envoy-cryptomb.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="envoy-acceleration-with-intel-avx512-crypto-instructions">
+<h1>Envoy acceleration with Intel® AVX512 crypto instructions<a class="headerlink" href="#envoy-acceleration-with-intel-avx512-crypto-instructions" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>Cryptographic operations are among the most compute-intensive and critical operations when it comes to secured connections. The TLS termination is a key feature of Envoy,
+and special in the use-case of Envoy using as a gateway. The TLS handshake becomes the most compute-intensive and critical operations.</p>
+<p>CryptoMB means using Intel® Advanced Vector Extensions 512 (Intel® AVX-512) instructions using a SIMD (single instruction, multiple data) mechanism. Up to eight RSA or ECDSA operations are gathered into a buffer and processed at the same time, providing potentially improved performance. Intel AVX-512 instructions are available on recently launched 3rd generation Intel Xeon Scalable processor server processors, or later.</p>
+<p>In this document you will learn how to enable CryptoMB in Envoy to achieve performance improvements and accelerated handshakes.</p>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>At least one node 3rd generation Intel Xeon Scalable processor server processors, or later.<br />And the following instructions are required to use CryptoMB:</p>
+<ul>
+<li><p>BMI2</p></li>
+<li><p>AVX512F</p></li>
+<li><p>AVX512DQ</p></li>
+<li><p>AVX512BW</p></li>
+<li><p>AVX512IFMA</p></li>
+<li><p>AVX512VBMI2</p></li>
+<li><p>AVX512_ENABLEDBYOS</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>To enable CryptoMB on HTTP1 or HTTP2, just as usual way to add <a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/tls.proto">TLS Transportsocket</a> for the downstream connection , but enable the <a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/tls.proto">private key provider</a>. To enable CryptoMB,
+the <a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/contrib/cryptomb/cryptomb">CryptoMB provider</a> should be used. The configuration example for HTTP1 and HTTP2 as below:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">transport_socket</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">envoy.transport_sockets.tls</span>
+<span class="w">    </span><span class="nt">typed_config</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext</span>
+<span class="w">      </span><span class="nt">common_tls_context</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">tls_certificates</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">certificate_chain</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/home/hejiexu/cert/server.pem&quot;</span>
+<span class="w">        </span><span class="nt">private_key_provider</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">provider_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cryptomb</span>
+<span class="w">          </span><span class="nt">typed_config</span><span class="p">:</span><span class="w">  </span>
+<span class="w">            </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.private_key_providers.cryptomb.v3alpha.CryptoMbPrivateKeyMethodConfig</span><span class="w"> </span>
+<span class="w">            </span><span class="nt">private_key</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/home/hejiexu/cert/server-key.pem&quot;</span>
+<span class="w">            </span><span class="nt">poll_delay</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">nanos</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000000</span>
+</pre></div>
+</div>
+<p>To enable CryptoMB on HTTP3(QUIC), the <a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/quic/v3/quic_transport.proto#extensions-transport-sockets-quic-v3-quicdownstreamtransport">QUIC downstream transport socket</a> should be used, all other parts are same with HTTP1 and HTTP2. The configuration example for HTTP3(QUIC) as below:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">transport_socket</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">envoy.transport_sockets.tls</span>
+<span class="w">    </span><span class="nt">typed_config</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.transport_sockets.quic.v3.QuicDownstreamTransport</span>
+<span class="w">      </span><span class="nt">common_tls_context</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">tls_certificates</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">certificate_chain</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/home/hejiexu/cert/server.pem&quot;</span>
+<span class="w">        </span><span class="nt">private_key_provider</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">provider_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cryptomb</span>
+<span class="w">          </span><span class="nt">typed_config</span><span class="p">:</span><span class="w">  </span>
+<span class="w">            </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.private_key_providers.cryptomb.v3alpha.CryptoMbPrivateKeyMethodConfig</span><span class="w"> </span>
+<span class="w">            </span><span class="nt">private_key</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/home/hejiexu/cert/server-key.pem&quot;</span>
+<span class="w">            </span><span class="nt">poll_delay</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">nanos</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000000</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

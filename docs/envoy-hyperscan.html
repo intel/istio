@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyperscan &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Hyperscan</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/envoy-hyperscan.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hyperscan">
+<h1>Hyperscan<a class="headerlink" href="#hyperscan" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/matching/input_matchers/hyperscan/v3alpha/hyperscan.proto">Matcher v3 API reference</a></p></li>
+<li><p><a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/regex_engines/hyperscan/v3alpha/hyperscan.proto.html">Regex engine v3 API reference</a></p></li>
+</ul>
+<p><a class="reference external" href="https://github.com/intel/hyperscan">Hyperscan</a> is a high-performance multiple regex matching library, which uses
+hybrid automata techniques to allow simultaneous matching of large numbers of regular expressions and for the matching
+of regular expressions across streams of data. Hyperscan supports the
+<a class="reference external" href="https://intel.github.io/hyperscan/dev-reference/compilation.html#pattern-support">pattern syntax</a> used by PCRE.</p>
+<p>Hyperscan is only valid in the
+<a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/start/install#install-contrib">contrib image</a>.</p>
+<p>Hyperscan can be used as a matcher of
+<a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/advanced/matching/matching">generic matching</a>, or
+enabled as a regex engine globally.</p>
+<section id="as-a-matcher-of-generic-matching">
+<h2>As a matcher of generic matching<a class="headerlink" href="#as-a-matcher-of-generic-matching" title="Link to this heading"></a></h2>
+<p>Generic matching has been implemented in a few of components and extensions in Envoy, including
+<a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/listener/v3/listener.proto.html#envoy-v3-api-field-config-listener-v3-listener-filter-chain-matcher">filter chain matcher</a>,
+<a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto.html#envoy-v3-api-field-config-route-v3-virtualhost-matcher">route matcher</a> and
+<a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/http/rbac/v3/rbac.proto.html#envoy-v3-api-field-extensions-filters-http-rbac-v3-rbac-matcher">RBAC matcher</a>.
+Hyperscan matcher can be used in generic matcher as a custom matcher in the following structure:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">custom_match</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hyperscan</span>
+<span class="w">  </span><span class="nt">typed_config</span><span class="p">:</span>
+<span class="w">    </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.matching.input_matchers.hyperscan.v3alpha.Hyperscan</span>
+<span class="w">    </span><span class="nt">regexes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allowed.*path</span>
+</pre></div>
+</div>
+<p>The behavior of regex matching in Hyperscan matchers can be configured, please refer to the
+<a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/matching/input_matchers/hyperscan/v3alpha/hyperscan.proto.html#envoy-v3-api-msg-extensions-matching-input-matchers-hyperscan-v3alpha-hyperscan-regex">API reference</a>.</p>
+<p>Hyperscan matcher also supports multiple pattern matching which allows matches to be reported for several patterns
+simultaneously. Multiple pattern matching can be turned on in the following structure:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">custom_match</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hyperscan</span>
+<span class="w">  </span><span class="nt">typed_config</span><span class="p">:</span>
+<span class="w">    </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.matching.input_matchers.hyperscan.v3alpha.Hyperscan</span>
+<span class="w">    </span><span class="c1"># The following multiple patterns match input including allowed.*path and excluding</span>
+<span class="w">    </span><span class="c1"># den(y|ied). E.g., the path /allowed/path will be matched, while the path</span>
+<span class="w">    </span><span class="c1"># /allowed/denied/path will not be matched.</span>
+<span class="w">    </span><span class="nt">regexes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allowed.*path</span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="nt">quiet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">den(y|ied)</span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">      </span><span class="nt">quiet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1 &amp; !2</span>
+<span class="w">      </span><span class="nt">combination</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<section id="as-a-regex-engine">
+<h2>As a regex engine<a class="headerlink" href="#as-a-regex-engine" title="Link to this heading"></a></h2>
+<p>Hyperscan regex engine acts in the similar behavior with the default regex engine Google RE2 like it turns on UTF-8
+support by default. Hyperscan regex engine can be easily configured with the following configuration.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">default_regex_engine</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">envoy.regex_engines.hyperscan</span>
+<span class="w">  </span><span class="nt">typed_config</span><span class="p">:</span>
+<span class="w">    </span><span class="s">&#39;@type&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.regex_engines.hyperscan.v3alpha.Hyperscan</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

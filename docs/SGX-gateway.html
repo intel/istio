@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Istio Gateway Private Key Protection with SGX &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Use Meshery to deploy and manage Istio with Intel Features" href="Meshery.html" />
+    <link rel="prev" title="Istio mTLS Private Key Protection with SGX" href="SGX-mTLS.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../features.html">Features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="QAT.html">Istio crypto and compression acceleration with QAT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CRYPTOMB.html">Istio acceleration with Intel® AVX512 crypto instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SGX-mTLS.html">Istio mTLS Private Key Protection with SGX</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Istio Gateway Private Key Protection with SGX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Meshery.html">Use Meshery to deploy and manage Istio with Intel Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Grafana-Dashboard.html">Grafana Dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Kiali.html">Kiali</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../features.html">Features</a></li>
+      <li class="breadcrumb-item active">Istio Gateway Private Key Protection with SGX</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/SGX-gateway.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="istio-gateway-private-key-protection-with-sgx">
+<h1>Istio Gateway Private Key Protection with SGX<a class="headerlink" href="#istio-gateway-private-key-protection-with-sgx" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>Protecting Istio gateway private keys with Intel® SGX enhances the service mesh security. The private keys are stored and used inside the SGX enclave(s) and will never stored in clear anywhere in the system. Authorized applications use the private key in the enclave by key-handle provided by SGX. For more application scenarios, please refer to <a class="reference external" href="https://github.com/istio-ecosystem/hsm-sds-server/blob/main/README.md">this document</a></p>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Prerequisites for using Istio gateway private key protection with SGX:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="setup-sgx-software.html"><span class="doc">Intel® SGX software stack</span></a></p></li>
+<li><p>Kubernetes cluster with one or more nodes with Intel® <a class="reference external" href="https://software.intel.com/content/www/us/en/develop/topics/software-guard-extensions.html">SGX</a> supported hardware</p></li>
+<li><p><a class="reference external" href="https://github.com/intel/intel-device-plugins-for-kubernetes/blob/main/cmd/sgx_plugin/README.md">Intel® SGX device plugin for Kubernetes</a></p></li>
+<li><p>Linux kernel version 5.11 or later on the host (in tree SGX driver)</p></li>
+<li><p>Custom CA which support <a class="reference external" href="https://kubernetes.io/docs/reference/access-authn-authz/certificate-signing-requests/">Kubernetes CSR API</a></p></li>
+<li><p><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/topic-technology/open/key-management-reference-application/overview.html">Intel® KMRA service</a> (Optional, needs to be set up only when remote attestation required, which can be set through <code class="docutils literal notranslate"><span class="pre">NEED_QUOTE</span></code> flag in the chart.)</p></li>
+<li><p><a class="reference external" href="https://github.com/intel/linux-sgx">Intel® Linux SGX</a> and <a class="reference external" href="https://github.com/intel/crypto-api-toolkit">cripto-api-toolkit</a> in the host (optional, only needed if you want to build sds-server image locally)</p></li>
+</ul>
+<blockquote>
+<div><p>NOTE: The KMRA service and AESM daemon is also optional, needs to be set up only when remote attestaion required, which can be set through <code class="docutils literal notranslate"><span class="pre">NEED_QUOTE</span></code> flag in the chart.</p>
+</div></blockquote>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>This section covers how to install Istio gateway private key protection with SGX. We use Cert Manager as default K8s CA in this document. If you want to use TCS for remote attestaion, please refer to this <a class="reference external" href="https://github.com/istio-ecosystem/hsm-sds-server/blob/main/Install-with-TCS.md">Document</a>.</p>
+<blockquote>
+<div><p>Note: please ensure installed cert manager with flag  <code class="docutils literal notranslate"><span class="pre">--feature-gates=ExperimentalCertificateSigningRequestControllers=true</span></code>. You can use <code class="docutils literal notranslate"><span class="pre">--set</span> <span class="pre">featureGates=&quot;ExperimentalCertificateSigningRequestControllers=true&quot;</span></code> when helm install cert-manager</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Create signer</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cat<span class="w"> </span><span class="s">&lt;&lt;EOF &gt; ./istio-cm-issuer.yaml</span>
+<span class="s">apiVersion: cert-manager.io/v1</span>
+<span class="s">kind: ClusterIssuer</span>
+<span class="s">metadata:</span>
+<span class="s">  name: selfsigned-istio-issuer</span>
+<span class="s">spec:</span>
+<span class="s">  selfSigned: {}</span>
+<span class="s">---</span>
+<span class="s">apiVersion: cert-manager.io/v1</span>
+<span class="s">kind: Certificate</span>
+<span class="s">metadata:</span>
+<span class="s">  name: istio-ca</span>
+<span class="s">  namespace: cert-manager</span>
+<span class="s">spec:</span>
+<span class="s">  isCA: true</span>
+<span class="s">  commonName: istio-system</span>
+<span class="s">  secretName: istio-ca-selfsigned</span>
+<span class="s">  issuerRef:</span>
+<span class="s">    name: selfsigned-istio-issuer</span>
+<span class="s">    kind: ClusterIssuer</span>
+<span class="s">    group: cert-manager.io</span>
+<span class="s">---</span>
+<span class="s">apiVersion: cert-manager.io/v1</span>
+<span class="s">kind: ClusterIssuer</span>
+<span class="s">metadata:</span>
+<span class="s">  name: istio-system</span>
+<span class="s">spec:</span>
+<span class="s">  ca:</span>
+<span class="s">    secretName: istio-ca-selfsigned</span>
+<span class="s">EOF</span>
+$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>./istio-cm-issuer.yaml
+</pre></div>
+</div>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get CA Cert and replace it in ./deployment/istio-configs/istio-hsm-config.yaml</span>
+$<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>clusterissuers<span class="w"> </span>istio-system<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.ca.secretName}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>-n<span class="w"> </span>cert-manager<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.ca\.crt}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Install Istio</p></li>
+</ul>
+<blockquote>
+<div><p>NOTE: for the below command you need to use the <code class="docutils literal notranslate"><span class="pre">istioctl</span></code> for the <code class="docutils literal notranslate"><span class="pre">docker.io/intel/istioctl:1.21.0-intel.0</span></code> since only that contains Istio manifest enhancements for SGX mTLS.
+You can also customize the <code class="docutils literal notranslate"><span class="pre">intel-istio-sgx-gateway.yaml</span></code> according to your needs. If you want do the quote verification, you can set the <code class="docutils literal notranslate"><span class="pre">NEED_QUOTE</span></code> env as <code class="docutils literal notranslate"><span class="pre">true</span></code>. And if you are using the TCS v1alpha1 api, you should set the <code class="docutils literal notranslate"><span class="pre">RANDOM_NONCE</span></code> as <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p>
+</div></blockquote>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>istioctl<span class="w"> </span>install<span class="w"> </span>-f<span class="w"> </span>./intel/yaml/intel-istio-sgx-gateway.yaml<span class="w"> </span>-y
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Verifiy the pods are running</p></li>
+</ul>
+<p>By deault, <code class="docutils literal notranslate"><span class="pre">Istio</span></code> will be installed in the <code class="docutils literal notranslate"><span class="pre">istio-system</span></code> namespce</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ensure that the pods are running state</span>
+$<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-n<span class="w"> </span>istio-system
+NAME<span class="w">                                    </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
+istio-ingressgateway-55f8dbb66c-6qx2s<span class="w">   </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>73s
+istiod-65db6d8666-jgmf7<span class="w">                 </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>75s
+</pre></div>
+</div>
+</section>
+<section id="deploy-sample-application">
+<h2>Deploy sample application<a class="headerlink" href="#deploy-sample-application" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Create httpbin deployment with gateway CR:</p></li>
+</ul>
+<blockquote>
+<div><p>NOTE: If you want use the sds-custom injection template, you need to set the annotations <code class="docutils literal notranslate"><span class="pre">inject.istio.io/templates</span></code> for both <code class="docutils literal notranslate"><span class="pre">sidecar</span></code> and <code class="docutils literal notranslate"><span class="pre">sgx</span></code>. And the ClusterRole is also required.</p>
+</div></blockquote>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>&lt;<span class="o">(</span>istioctl<span class="w"> </span>kube-inject<span class="w"> </span>-f<span class="w"> </span>./intel/yaml/httpbin-sgx-gateway.yaml<span class="w"> </span><span class="o">)</span>
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>./intel/yaml/httpbinGW-sgx-gateway.yaml
+</pre></div>
+</div>
+<p>Note: please execute <code class="docutils literal notranslate"><span class="pre">kubectl</span> <span class="pre">apply</span> <span class="pre">-f</span> <span class="pre">./intel/yaml/gateway-clusterrole.yaml</span></code> to make sure that the ingress gateway has enough privilege.</p>
+<ul class="simple">
+<li><p>Successful deployment looks like this:</p></li>
+</ul>
+<p>Verify the httpbin pod:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-n<span class="w"> </span>default
+NAME<span class="w">                       </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">      </span>AGE
+httpbin-7fbf9db8f6-qvqn4<span class="w">   </span><span class="m">3</span>/3<span class="w">     </span>Running<span class="w">   </span><span class="m">4</span><span class="w"> </span><span class="o">(</span>97s<span class="w"> </span>ago<span class="o">)</span><span class="w">   </span>2m27s
+</pre></div>
+</div>
+<p>Verify the gateway CR:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>gateway<span class="w"> </span>-n<span class="w"> </span>default
+NAME<span class="w">              </span>AGE
+testuds-gateway<span class="w">   </span>2m52s
+</pre></div>
+</div>
+<p>Verify the quoteattestation CR:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>quoteattestations.tcs.intel.com<span class="w"> </span>-n<span class="w"> </span>default
+NAME<span class="w">                                                                            </span>AGE
+sgxquoteattestation-istio-ingressgateway-55f8dbb66c-6qx2s-httpbin-testsds-com<span class="w">   </span>4m36s
+</pre></div>
+</div>
+<p>Manually get the quoteattestation name via below command</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">QA_NAME</span><span class="o">=</span>&lt;YOUR<span class="w"> </span>QUOTEATTESTATION<span class="w"> </span>NAME&gt;
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Prepare credential information:</p></li>
+</ul>
+<p>We use command line tools to read and write the QuoteAttestation manually. You get the tools, <code class="docutils literal notranslate"><span class="pre">km-attest</span></code> and <code class="docutils literal notranslate"><span class="pre">km-wrap</span></code>, provided by the <a class="reference external" href="https://www.intel.com/content/www/us/en/developer/topic-technology/open/key-management-reference-application/overview.html">Intel® KMRA project</a>.</p>
+<blockquote>
+<div><p>NOTE: please use release version 2.2.1</p>
+</div></blockquote>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="nv">$HOME</span>/sgx/gateway
+$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">CREDENTIAL</span><span class="o">=</span><span class="nv">$HOME</span>/sgx/gateway
+
+$<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>quoteattestations.tcs.intel.com<span class="w"> </span>-n<span class="w"> </span>default<span class="w"> </span><span class="nv">$QA_NAME</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.publicKey}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="w"> </span>&gt;<span class="w"> </span><span class="nv">$CREDENTIAL</span>/public.key
+$<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>quoteattestations.tcs.intel.com<span class="w"> </span>-n<span class="w"> </span>default<span class="w"> </span><span class="nv">$QA_NAME</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.quote}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="w"> </span>&gt;<span class="w"> </span><span class="nv">$CREDENTIAL</span>/quote.data
+$<span class="w"> </span>km-attest<span class="w"> </span>--pubkey<span class="w"> </span><span class="nv">$CREDENTIAL</span>/public.key<span class="w"> </span>--quote<span class="w"> </span><span class="nv">$CREDENTIAL</span>/quote.data
+
+$<span class="w"> </span>openssl<span class="w"> </span>req<span class="w"> </span>-x509<span class="w"> </span>-sha256<span class="w"> </span>-nodes<span class="w"> </span>-days<span class="w"> </span><span class="m">365</span><span class="w"> </span>-newkey<span class="w"> </span>rsa:2048<span class="w"> </span>-subj<span class="w"> </span><span class="s1">&#39;/O=example Inc./CN=example.com&#39;</span><span class="w"> </span>-keyout<span class="w"> </span><span class="nv">$CREDENTIAL</span>/example.com.key<span class="w"> </span>-out<span class="w"> </span><span class="nv">$CREDENTIAL</span>/example.com.crt
+$<span class="w"> </span>openssl<span class="w"> </span>req<span class="w"> </span>-out<span class="w"> </span><span class="nv">$CREDENTIAL</span>/httpbin.csr<span class="w"> </span>-newkey<span class="w"> </span>rsa:2048<span class="w"> </span>-nodes<span class="w"> </span>-keyout<span class="w"> </span><span class="nv">$CREDENTIAL</span>/httpbin.key<span class="w"> </span>-subj<span class="w"> </span><span class="s2">&quot;/CN=httpbin.example.com/O=httpbin organization&quot;</span>
+$<span class="w"> </span>openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-sha256<span class="w"> </span>-days<span class="w"> </span><span class="m">365</span><span class="w"> </span>-CA<span class="w"> </span><span class="nv">$CREDENTIAL</span>/example.com.crt<span class="w"> </span>-CAkey<span class="w"> </span><span class="nv">$CREDENTIAL</span>/example.com.key<span class="w"> </span>-set_serial<span class="w"> </span><span class="m">0</span><span class="w"> </span>-in<span class="w"> </span><span class="nv">$CREDENTIAL</span>/httpbin.csr<span class="w"> </span>-out<span class="w"> </span><span class="nv">$CREDENTIAL</span>/httpbin.crt
+</pre></div>
+</div>
+<blockquote>
+<div><p>NOTE: Before using <code class="docutils literal notranslate"><span class="pre">km-attest</span></code>, please configurate <code class="docutils literal notranslate"><span class="pre">/opt/intel/km-wrap/km-wrap.conf</span></code> according to below content:</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;keys&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;signer&quot;</span><span class="p">:</span> <span class="s2">&quot;tcsclusterissuer.tcs.intel.com/sgx-signer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;key_path&quot;</span><span class="p">:</span> <span class="s2">&quot;$CREDENTIAL/httpbin.key&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cert&quot;</span><span class="p">:</span> <span class="s2">&quot;$CREDENTIAL/httpbin.crt&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Update credential quote attestation CR with secret contained wrapped key</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">WRAPPED_KEY</span><span class="o">=</span><span class="k">$(</span>km-wrap<span class="w"> </span>--signer<span class="w"> </span>tcsclusterissuer.tcs.intel.com/sgx-signer<span class="w"> </span>--pubkey<span class="w"> </span><span class="nv">$CREDENTIAL</span>/public.key<span class="w"> </span>--pin<span class="w"> </span><span class="s2">&quot;HSMUserPin&quot;</span><span class="w"> </span>--token<span class="w"> </span><span class="s2">&quot;HSMSDSServer&quot;</span><span class="w"> </span>--module<span class="w"> </span>/usr/local/lib/softhsm/libsofthsm2.so<span class="k">)</span>
+
+$<span class="w"> </span>kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>-n<span class="w"> </span>default<span class="w"> </span>wrapped-key<span class="w"> </span>--from-literal<span class="o">=</span>tls.key<span class="o">=</span><span class="si">${</span><span class="nv">WRAPPED_KEY</span><span class="si">}</span><span class="w"> </span>--from-literal<span class="o">=</span>tls.crt<span class="o">=</span><span class="k">$(</span>base64<span class="w"> </span>-w<span class="w"> </span><span class="m">0</span><span class="w"> </span>&lt;<span class="w"> </span><span class="nv">$CREDENTIAL</span>/httpbin.crt<span class="k">)</span>
+</pre></div>
+</div>
+<p>Edit quoteattestations.tcs.intel.com $QA_NAME via commond <code class="docutils literal notranslate"><span class="pre">kubectl</span> <span class="pre">edit</span> <span class="pre">quoteattestations.tcs.intel.com</span> <span class="pre">$QA_NAME</span> <span class="pre">-n</span> <span class="pre">default</span></code> and append field <code class="docutils literal notranslate"><span class="pre">secretName:</span> <span class="pre">wrapped-key</span></code> for it.</p>
+<p>The above <code class="docutils literal notranslate"><span class="pre">httpbin</span></code> applications have enabled SGX and store the private keys inside SGX enclave, completed the TLS handshake and established a connection with each other and communicating normally.</p>
+<ul class="simple">
+<li><p>Verify the service accessibility</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">INGRESS_NAME</span><span class="o">=</span>istio-ingressgateway
+$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">INGRESS_NS</span><span class="o">=</span>istio-system
+$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">SECURE_INGRESS_PORT</span><span class="o">=</span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">INGRESS_NS</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>get<span class="w"> </span>service<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">INGRESS_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.ports[?(@.name==&quot;https&quot;)].nodePort}&#39;</span><span class="k">)</span>
+$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">INGRESS_HOST</span><span class="o">=</span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>po<span class="w"> </span>-l<span class="w"> </span><span class="nv">istio</span><span class="o">=</span>ingressgateway<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">INGRESS_NS</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].status.hostIP}&#39;</span><span class="k">)</span>
+
+$<span class="w"> </span>curl<span class="w"> </span>-v<span class="w"> </span>-HHost:httpbin.example.com<span class="w"> </span>--resolve<span class="w"> </span><span class="s2">&quot;httpbin.example.com:</span><span class="nv">$SECURE_INGRESS_PORT</span><span class="s2">:</span><span class="nv">$INGRESS_HOST</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cacert<span class="w"> </span><span class="nv">$CREDENTIAL</span>/example.com.crt<span class="w"> </span><span class="s2">&quot;https://httpbin.example.com:</span><span class="nv">$SECURE_INGRESS_PORT</span><span class="s2">/status/418&quot;</span>
+</pre></div>
+</div>
+<p>It will be okay if got below response:
+<a class="reference external" href="https://github.com/intel/istio/blob/release-1.19-intel/intel/image/gateway-test.png">Response</a></p>
+</section>
+<section id="cleaning-up">
+<h2>Cleaning Up<a class="headerlink" href="#cleaning-up" title="Link to this heading"></a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># delete workloads and secret</span>
+$<span class="w"> </span>kubectl<span class="w"> </span>delete<span class="w"> </span>-f<span class="w"> </span>./intel/yaml/httpbin-sgx-gateway.yaml<span class="w"> </span>-n<span class="w"> </span>default
+$<span class="w"> </span>kubectl<span class="w"> </span>delete<span class="w"> </span>-f<span class="w"> </span>./intel/yaml/httpbinGW-sgx-gateway.yaml<span class="w"> </span>-n<span class="w"> </span>default
+<span class="c1"># uninstall istio</span>
+$<span class="w"> </span>istioctl<span class="w"> </span>x<span class="w"> </span>uninstall<span class="w"> </span>--purge<span class="w"> </span>-y
+</pre></div>
+</div>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://github.com/intel/trusted-certificate-issuer">Trusted Certificate Issuer</a></p>
+<p><a class="reference external" href="https://github.com/intel/trusted-attestation-controller">Trusted Attestation Controller</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="SGX-mTLS.html" class="btn btn-neutral float-left" title="Istio mTLS Private Key Protection with SGX" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Meshery.html" class="btn btn-neutral float-right" title="Use Meshery to deploy and manage Istio with Intel Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

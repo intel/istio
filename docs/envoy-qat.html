@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Envoy acceleration with QAT &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Envoy acceleration with QAT</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/envoy-qat.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="envoy-acceleration-with-qat">
+<h1>Envoy acceleration with QAT<a class="headerlink" href="#envoy-acceleration-with-qat" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>Intel® QuickAssist Technology (QAT) provides hardware acceleration for offloading security, authentication and compression services from the CPU, thus significantly increasing the performance and efficiency of standard platform solutions.</p>
+<p>In this guide you will learn how to Envoy with QAT crypto acceleration for TLS handshakes</p>
+<p>This solution is based on Linux in-tree driver and is utilizing the <a class="reference external" href="https://github.com/intel/qatlib">qatlib</a></p>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Your Kubernetes nodes requires the following preparations</p>
+<ul class="simple">
+<li><p>Install Linux kernel 5.17 or similar</p></li>
+<li><p>Enable IOMMU from BIOS</p></li>
+<li><p>Enable IOMMU for Linux kernel</p></li>
+<li><p>Enhance the container runtime memory lock limit</p></li>
+<li><p>Install <a class="reference external" href="https://github.com/intel/intel-device-plugins-for-kubernetes">Intel® QAT Device Plugin for Kubernetes</a></p></li>
+</ul>
+<p>To enable IOMMU for Linux kernel, add the following change and commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cat /etc/default/grub:</span>
+<span class="go">GRUB_CMDLINE_LINUX=&quot;intel_iommu=on vfio-pci.ids=8086:4941&quot;</span>
+<span class="go">update-grub</span>
+<span class="go">reboot</span>
+</pre></div>
+</div>
+<p>Once the system is rebooted, check if the IOMMU has been enabled via the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">dmesg| grep IOMMU</span>
+<span class="go">[    1.528237] DMAR: IOMMU enabled</span>
+</pre></div>
+</div>
+<p>For running Envoy in the container, the <code class="docutils literal notranslate"><span class="pre">containerd</span></code> runtime memory lock limit need to be enhanced, add the following file (CRIO has similar configuration):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo mkdir /etc/systemd/system/containerd.service.d</span>
+<span class="go">sudo bash -c &#39;cat &lt;&lt;EOF &gt;&gt;/etc/systemd/system/containerd.service.d/memlock.conf</span>
+<span class="go">[Service]</span>
+<span class="go">LimitMEMLOCK=134217728</span>
+<span class="go">EOF&#39;</span>
+</pre></div>
+</div>
+<p>Restart the container runtime (for containerd, CRIO has similar concept)</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo systemctl daemon-reload</span>
+<span class="go">sudo systemctl restart containerd</span>
+</pre></div>
+</div>
+<p>And the QAT vfio device (under <code class="docutils literal notranslate"><span class="pre">/dev/vfio</span></code>) should be passthrough to the container.</p>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>To enable QAT on HTTP1 or HTTP2, just as usual way to add <a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/tls.proto">TLS Transportsocket</a> for the downstream connection , but enable the <a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/tls.proto">private key provider</a>. To enable QAT,
+the <a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/private_key_providers/qat/v3alpha/qat.proto">QAT provider</a> should be used. The configuration example for HTTP1/HTTP2 as below:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">transport_socket</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">envoy.transport_sockets.tls</span>
+<span class="w">    </span><span class="nt">typed_config</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext</span>
+<span class="w">      </span><span class="nt">common_tls_context</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">tls_certificates</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">certificate_chain</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/home/hejiexu/cert/server.pem&quot;</span>
+<span class="w">        </span><span class="nt">private_key_provider</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">provider_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qat</span>
+<span class="w">            </span><span class="nt">typed_config</span><span class="p">:</span><span class="w">  </span>
+<span class="w">              </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.private_key_providers.qat.v3alpha.QatPrivateKeyMethodConfig</span>
+<span class="w">              </span><span class="nt">private_key</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/home/hejiexu/cert/server-key.pem&quot;</span>
+<span class="w">                </span><span class="nt">poll_delay</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">nanos</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000000</span>
+</pre></div>
+</div>
+<p>To enable CryptoMB on HTTP3(QUIC), the <a class="reference external" href="https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/quic/v3/quic_transport.proto#extensions-transport-sockets-quic-v3-quicdownstreamtransport">QUIC downstream transport socket</a> should be used, all other parts are same with HTTP1 and HTTP2. The configuration example for HTTP3(QUIC) as below:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">transport_socket</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">envoy.transport_sockets.tls</span>
+<span class="w">    </span><span class="nt">typed_config</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.transport_sockets.quic.v3.QuicDownstreamTransport</span>
+<span class="w">      </span><span class="nt">common_tls_context</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">tls_certificates</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">certificate_chain</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/home/hejiexu/cert/server.pem&quot;</span>
+<span class="w">        </span><span class="nt">private_key_provider</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">provider_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cryptomb</span>
+<span class="w">          </span><span class="nt">typed_config</span><span class="p">:</span><span class="w">  </span>
+<span class="w">            </span><span class="s">&quot;@type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type.googleapis.com/envoy.extensions.private_key_providers.qat.v3alpha.QatPrivateKeyMethodConfig</span>
+<span class="w">            </span><span class="nt">private_key</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/home/hejiexu/cert/server-key.pem&quot;</span>
+<span class="w">            </span><span class="nt">poll_delay</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">nanos</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000000</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

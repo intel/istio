@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Excluding Istio interfaces for 5G core &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Excluding Istio interfaces for 5G core</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/Excluding-Istio-interfaces-for-5G-core.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="excluding-istio-interfaces-for-5g-core">
+<h1>Excluding Istio interfaces for 5G core<a class="headerlink" href="#excluding-istio-interfaces-for-5g-core" title="Link to this heading"></a></h1>
+<p>This document contains instructions how to deploy <a class="reference external" href="https://www.free5gc.org/">free5gc</a> on a single Kubernetes cluster using <a class="reference external" href="https://github.com/Orange-OpenSource/towards5gs-helm">Helm charts</a>. The free5gc control and data plane are deployed on a <code class="docutils literal notranslate"><span class="pre">cp</span></code> and <code class="docutils literal notranslate"><span class="pre">dp</span></code> namespaces, respectively. Both namespaces have Istio sidecar injection enabled. However, dataplane network interfaces <code class="docutils literal notranslate"><span class="pre">upfgtp</span></code> and <code class="docutils literal notranslate"><span class="pre">n6</span></code> interfaces are excluded from the Istio service mesh. That means Istio sidecar does not monitor traffic through <code class="docutils literal notranslate"><span class="pre">upfgtp</span></code> and <code class="docutils literal notranslate"><span class="pre">n6</span></code> interfaces, which improves the latency of data network traffic in 5G network.</p>
+<p><img alt="Free 5GC Cluster with Istio service mesh" src="../_images/Setup-free5gc-core--cluster-and-test-with-UERANSIM-Architecture-with-istio-service-mesh.png" /></p>
+<section id="install-gtpg5g-kernel-module">
+<h2>Install gtpg5g kernel module<a class="headerlink" href="#install-gtpg5g-kernel-module" title="Link to this heading"></a></h2>
+<p>Each worker node needs <a class="reference external" href="https://github.com/free5gc/gtp5g">gtp5g kernel module</a>.</p>
+<p>Due to the evolution of Linux kernel, this module would not work with every kernel version. Please run this module with kernel version 5.0.0-23-generic, upper than 5.4 (Ubuntu 20.04.1) or RHEL8.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone -b v0.3.1 https://github.com/free5gc/gtp5g.git</span>
+<span class="go">cd gtp5g</span>
+<span class="go">make</span>
+<span class="go">sudo make install</span>
+</pre></div>
+</div>
+</section>
+<section id="add-helm-charts">
+<h2>Add Helm charts<a class="headerlink" href="#add-helm-charts" title="Link to this heading"></a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">helm repo add towards5gs https://raw.githubusercontent.com/Orange-OpenSource/towards5gs-helm/main/repo/</span>
+<span class="go">helm repo update</span>
+</pre></div>
+</div>
+</section>
+<section id="install-calico">
+<h2>Install Calico<a class="headerlink" href="#install-calico" title="Link to this heading"></a></h2>
+<p>Apply customised calico resource yaml file (we need natOutgoing and containerIPForwarding enabled for 5GC)</p>
+<blockquote>
+<div><p>NOTE: cidr should match with cluster cidr.</p>
+</div></blockquote>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cat &lt;&lt;EOF |kubectl create -f -</span>
+<span class="gp"># </span>This<span class="w"> </span>section<span class="w"> </span>includes<span class="w"> </span>base<span class="w"> </span>Calico<span class="w"> </span>installation<span class="w"> </span>configuration.
+<span class="gp"># </span>For<span class="w"> </span>more<span class="w"> </span>information,<span class="w"> </span>see:<span class="w"> </span>https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.Installation
+<span class="go">apiVersion: operator.tigera.io/v1</span>
+<span class="go">kind: Installation</span>
+<span class="go">metadata:</span>
+<span class="go">  name: default</span>
+<span class="go">spec:</span>
+<span class="gp">  # </span>Configures<span class="w"> </span>Calico<span class="w"> </span>networking.
+<span class="go">  calicoNetwork:</span>
+<span class="gp">    # </span>Note:<span class="w"> </span>The<span class="w"> </span>ipPools<span class="w"> </span>section<span class="w"> </span>cannot<span class="w"> </span>be<span class="w"> </span>modified<span class="w"> </span>post-install.
+<span class="go">    ipPools:</span>
+<span class="go">    - blockSize: 26</span>
+<span class="go">      cidr: 192.168.0.0/16</span>
+<span class="go">      encapsulation: VXLANCrossSubnet</span>
+<span class="go">      natOutgoing: Enabled</span>
+<span class="go">      nodeSelector: all()</span>
+<span class="go">    containerIPForwarding: Enabled</span>
+<span class="go">---</span>
+
+<span class="gp"># </span>This<span class="w"> </span>section<span class="w"> </span>configures<span class="w"> </span>the<span class="w"> </span>Calico<span class="w"> </span>API<span class="w"> </span>server.
+<span class="gp"># </span>For<span class="w"> </span>more<span class="w"> </span>information,<span class="w"> </span>see:<span class="w"> </span>https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.APIServer
+<span class="go">apiVersion: operator.tigera.io/v1</span>
+<span class="go">kind: APIServer</span>
+<span class="go">metadata:</span>
+<span class="go">  name: default</span>
+<span class="go">spec: {}</span>
+<span class="go">EOF</span>
+
+<span class="go">kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.1/manifests/tigera-operator.yaml </span>
+</pre></div>
+</div>
+</section>
+<section id="install-istio">
+<h2>Install Istio<a class="headerlink" href="#install-istio" title="Link to this heading"></a></h2>
+<p>Follow istio installation instructions from <a class="reference external" href="https://istio.io/latest/docs/setup/install/istioctl">here</a></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">istioctl install -y</span>
+</pre></div>
+</div>
+<p>Create <code class="docutils literal notranslate"><span class="pre">dp</span></code> and <code class="docutils literal notranslate"><span class="pre">cp</span></code> namespaces and label <code class="docutils literal notranslate"><span class="pre">dp</span></code> and <code class="docutils literal notranslate"><span class="pre">cp</span></code> for sidecar injection.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">kubectl create ns dp</span>
+<span class="go">kubectl create ns cp</span>
+<span class="go">kubectl label ns cp istio-injection=enabled</span>
+<span class="go">kubectl label ns dp istio-injection=enabled</span>
+</pre></div>
+</div>
+<p>Create Istio gateway and virtual service for free5gc Web-UI.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cat &lt;&lt;EOF |kubectl create -f -</span>
+<span class="go">apiVersion: networking.istio.io/v1alpha3</span>
+<span class="go">kind: Gateway</span>
+<span class="go">metadata:</span>
+<span class="go">  name: webui-gateway</span>
+<span class="go">spec:</span>
+<span class="go">  selector:</span>
+<span class="go">    istio: ingressgateway</span>
+<span class="go">  servers:</span>
+<span class="go">  - port:</span>
+<span class="go">      number: 80</span>
+<span class="go">      name: http</span>
+<span class="go">      protocol: HTTP</span>
+<span class="go">    hosts:</span>
+<span class="go">    - &quot;*&quot;</span>
+<span class="go">---</span>
+<span class="go">apiVersion: networking.istio.io/v1alpha3</span>
+<span class="go">kind: VirtualService</span>
+<span class="go">metadata:</span>
+<span class="go">  name: webui</span>
+<span class="go">spec:</span>
+<span class="go">  hosts:</span>
+<span class="go">  - &quot;*&quot;</span>
+<span class="go">  gateways:</span>
+<span class="go">  - webui-gateway</span>
+<span class="go">  http:</span>
+<span class="go">  - route:</span>
+<span class="go">    - destination:</span>
+<span class="go">        host: webui-service.cp.svc.cluster.local</span>
+<span class="go">        port:</span>
+<span class="go">          number: 5000</span>
+<span class="go">EOF</span>
+</pre></div>
+</div>
+</section>
+<section id="install-multus">
+<h2>Install Multus<a class="headerlink" href="#install-multus" title="Link to this heading"></a></h2>
+<p>Multus CNI is needed to have multiple interfaces on 5G CNFs (pods).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kubectl</span> <span class="n">apply</span> <span class="o">-</span><span class="n">f</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">raw</span><span class="o">.</span><span class="n">githubusercontent</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">k8snetworkplumbingwg</span><span class="o">/</span><span class="n">multus</span><span class="o">-</span><span class="n">cni</span><span class="o">/</span><span class="mi">33</span><span class="n">c0d1bd86b22106442c84b8d9e28945cf6182e3</span><span class="o">/</span><span class="n">deployments</span><span class="o">/</span><span class="n">multus</span><span class="o">-</span><span class="n">daemonset</span><span class="o">-</span><span class="n">thick</span><span class="o">.</span><span class="n">yml</span>
+</pre></div>
+</div>
+</section>
+<section id="install-free5gc">
+<h2>Install free5gc<a class="headerlink" href="#install-free5gc" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>NOTE: you may need to tune your network interface names and data network subnet. Check <a class="reference external" href="https://github.com/Orange-OpenSource/towards5gs-helm/tree/main/charts/free5gc#networks-configuration">this</a> documentation how to do that.</p>
+</div></blockquote>
+<p>In this example the interface name is <code class="docutils literal notranslate"><span class="pre">ens3</span></code> (instead of the default <code class="docutils literal notranslate"><span class="pre">eth0</span></code>), data network (n6) configuration should match your host interface (ens3) details. E.g: if your host interface (ens3) subnet ip is 10.237.72.0/24 and gateway address is 10.237.72.1. Then n6 interface details should be like below. <code class="docutils literal notranslate"><span class="pre">global.n6network.subnetIP</span></code>=&lt;”10.237.72.0”&gt;, <code class="docutils literal notranslate"><span class="pre">global.n6network.gatewayIP</span></code>=&lt;”10.237.72.1”&gt; and <code class="docutils literal notranslate"><span class="pre">upf.n6if.ipAddress</span></code>=&lt;”10.237.72.XX”&gt;. Pick a free ip address in that subnet.</p>
+<p>Install free5gc data plane (UPF) to <code class="docutils literal notranslate"><span class="pre">dp</span></code> namespace.</p>
+<blockquote>
+<div><p>NOTE: N6 network <code class="docutils literal notranslate"><span class="pre">cidr</span></code> default is 24 and is omited below. <code class="docutils literal notranslate"><span class="pre">upf.n6if.ipAddress</span></code> is an extra ip address(not host ip) you need reserve in advance. Contact network administrator in case this address is blocked by certain security rule in your network.</p>
+</div></blockquote>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">helm upgrade --install intel -n dp \</span>
+<span class="go">--set global.n4network.masterIf=ens3 \</span>
+<span class="go">--set global.n3network.masterIf=ens3 \</span>
+<span class="go">--set global.n6network.masterIf=ens3 \</span>
+<span class="go">--set global.n6network.subnetIP=&quot;10.237.72.0&quot; \</span>
+<span class="go">--set global.n6network.gatewayIP=&quot;10.237.72.1&quot; \</span>
+<span class="go">--set upf.n6if.ipAddress=&quot;10.237.72.20&quot; \</span>
+<span class="go">--set upf.podAnnotations.&quot;traffic\.sidecar\.istio\.io\/excludeInterfaces&quot;=&quot;upfgtp\, n6&quot; \</span>
+<span class="go">towards5gs/free5gc-upf</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Note: Istio unable to inject the sidecar to upf pod. It is showing “ Warning  Unhealthy 18s (x10 over 45s)  kubelet Readiness probe failed: Get “http://192.168.47.205:15021/healthz/ready”: context deadline exceeded (Client.Timeout exceeded while awaiting headers)”. A temporary hack would be edit deployment of upf and add an annotation <code class="docutils literal notranslate"><span class="pre">status.sidecar.istio.io/port:</span> <span class="pre">&quot;0&quot;</span></code> and wait for pod to restart.</p>
+</div></blockquote>
+<p>Install free5gc control plane to <code class="docutils literal notranslate"><span class="pre">cp</span></code> namespace.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">helm upgrade --install intel -n cp \</span>
+<span class="go">--set deployUPF=false \</span>
+<span class="go">--set deployWEBUI=false \</span>
+<span class="go">--set mongodb.persistence.enabled=false \</span>
+<span class="go">--set global.n2network.masterIf=ens3 \</span>
+<span class="go">--set global.n3network.masterIf=ens3 \</span>
+<span class="go">--set global.n4network.masterIf=ens3 \</span>
+<span class="go">--set global.n6network.masterIf=ens3 \</span>
+<span class="go">--set global.n9network.masterIf=ens3 \</span>
+<span class="go">towards5gs/free5gc</span>
+</pre></div>
+</div>
+<p>Install free5gc WebUI to <code class="docutils literal notranslate"><span class="pre">cp</span></code> namespace.</p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">WEBUI_SERVICE_TYPE</span></code> as follows depending if you are installing with or without Istio.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>With<span class="w"> </span>Istio
+<span class="go">export WEBUI_SERVICE_TYPE=LoadBalancer/NodePort</span>
+<span class="gp"># </span>Without<span class="w"> </span>Istio<span class="w"> </span>
+<span class="go">export WEBUI_SERVICE_TYPE=NodePort</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">helm upgrade --install webui -n cp \</span>
+<span class="go">--set webui.service.type=$WEBUI_SERVICE_TYPE \</span>
+<span class="go">towards5gs/free5gc-webui</span>
+</pre></div>
+</div>
+</section>
+<section id="install-verification">
+<h2>Install Verification<a class="headerlink" href="#install-verification" title="Link to this heading"></a></h2>
+<p>The control plane deployment should look like this. Note the two containers per pod due to the Istio sidecars.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">kubectl get pod -n cp</span>
+<span class="go">NAME                                         READY   STATUS    RESTARTS   AGE</span>
+<span class="go">intel-free5gc-amf-amf-95f88965b-qvvsn        2/2     Running   0          21h</span>
+<span class="go">intel-free5gc-ausf-ausf-7994587f88-5nsld     2/2     Running   0          21h</span>
+<span class="go">intel-free5gc-nrf-nrf-67d7d8cf66-kn4p9       2/2     Running   0          21h</span>
+<span class="go">intel-free5gc-nssf-nssf-5cb78f9b9c-xm7vn     2/2     Running   0          21h</span>
+<span class="go">intel-free5gc-pcf-pcf-6cd66d46d4-s8n2f       2/2     Running   0          21h</span>
+<span class="go">intel-free5gc-smf-smf-c7d9fcffd-j7lv5        2/2     Running   0          21h</span>
+<span class="go">intel-free5gc-udm-udm-58b4d54bbf-dxmbs       2/2     Running   0          21h</span>
+<span class="go">intel-free5gc-udr-udr-78d5484d58-htc9m       2/2     Running   0          21h</span>
+<span class="go">intel-free5gc-webui-webui-5f975d95fd-dzrtj   2/2     Running   0          21h</span>
+<span class="go">mongodb-0                                    2/2     Running   0          21h</span>
+</pre></div>
+</div>
+<p>The data plane deployment should look like this.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">kubectl get pod -n dp</span>
+<span class="go">NAME                                     READY   STATUS    RESTARTS   AGE</span>
+<span class="go">intel-free5gc-upf-upf-67ddd9967d-gklrr   2/2     Running   0          21h</span>
+</pre></div>
+</div>
+<p>Check the Web UI access.</p>
+<blockquote>
+<div><p>NOTE: the below requires that your cluster supports service type <code class="docutils literal notranslate"><span class="pre">LoadBalancer</span></code>. Otherwise you need to use some other mechanism to access the Web UI.</p>
+</div></blockquote>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">IP=$(kubectl get svc -n istio-system istio-ingressgateway -o jsonpath=&quot;{.status.loadBalancer.ingress[0].ip}&quot;)</span>
+<span class="go">curl $IP</span>
+</pre></div>
+</div>
+<p>Use a web bowser to access the URL <code class="docutils literal notranslate"><span class="pre">http://${IP}</span></code>, login credentials are <code class="docutils literal notranslate"><span class="pre">admin/free5gc</span></code>. Add a subscriber (UE).</p>
+<p>Install <code class="docutils literal notranslate"><span class="pre">ueransim</span></code> simulator on a newly created <code class="docutils literal notranslate"><span class="pre">sim</span></code> namespace.</p>
+<blockquote>
+<div><p>NOTE: subscriber adding is necessary before sim component installation, if uesimtun0 created failed, try uninstall sim with <code class="docutils literal notranslate"><span class="pre">helm</span> <span class="pre">uninstall</span> <span class="pre">sim</span> <span class="pre">-n</span> <span class="pre">sim</span></code> and redeploy to fix it.</p>
+</div></blockquote>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">helm install sim -n sim --create-namespace \</span>
+<span class="go">--set global.n2network.masterIf=ens3 \</span>
+<span class="go">--set global.n3network.masterIf=ens3 \</span>
+<span class="go">towards5gs/ueransim</span>
+</pre></div>
+</div>
+<p>The simulator deployment should look like this.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">kubectl get pod -n sim</span>
+<span class="go">NAME                                READY   STATUS    RESTARTS   AGE</span>
+<span class="go">sim-ueransim-gnb-6dffd9c777-qlz7l   1/1     Running   0          64m</span>
+<span class="go">sim-ueransim-ue-6cf9b565d8-skp54    1/1     Running   0          64m</span>
+</pre></div>
+</div>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<p>Access exteral services from UE simimulator via data network.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Get<span class="w"> </span>the<span class="w"> </span>UE<span class="w"> </span>Pod<span class="w"> </span>name<span class="w"> </span>by<span class="w"> </span>running:
+<span class="go">export POD_NAME=$(kubectl get pods --namespace sim -l &quot;component=ue&quot; -o jsonpath=&quot;{.items[0].metadata.name}&quot;)</span>
+<span class="gp"># </span>Check<span class="w"> </span>that<span class="w"> </span>uesimtun0<span class="w"> </span>interface<span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>created<span class="w"> </span>by<span class="w"> </span>running<span class="w"> </span>these<span class="w"> </span>commands:
+<span class="go">kubectl --namespace sim exec -it $POD_NAME -- ip address</span>
+<span class="gp"># </span>Try<span class="w"> </span>to<span class="w"> </span>access<span class="w"> </span>internet<span class="w"> </span>from<span class="w"> </span>the<span class="w"> </span>UE<span class="w"> </span>by<span class="w"> </span>running:
+<span class="go">kubectl --namespace sim exec -it $POD_NAME -- ping -I uesimtun0 corp.intel.com</span>
+</pre></div>
+</div>
+<p>You should see our NTP server responding ;)</p>
+<p>To test istio’s excludeInterfaces feature, run the httpbin server anywhere in your network.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run -p 8080:80 kennethreitz/httpbin</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="try-to-access-it-from-the-ue-by-running">
+<h1>Try to access it from the UE by running:<a class="headerlink" href="#try-to-access-it-from-the-ue-by-running" title="Link to this heading"></a></h1>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">kubectl --namespace sim exec -it $POD_NAME -- curl --interface uesimtun0 -v http://&lt;IP_ADDR_OF_HTTPBIN_HOST&gt;:8080/headers</span>
+<span class="go">*   Trying 10.237.72.78...</span>
+<span class="go">* TCP_NODELAY set</span>
+<span class="go">* Connected to 10.237.72.78 (10.237.72.78) port 8080 (#0)</span>
+<span class="go">&gt; GET /headers HTTP/1.1</span>
+<span class="go">&gt; Host: 10.237.72.78:8080</span>
+<span class="go">&gt; User-Agent: curl/7.58.0</span>
+<span class="go">&gt; Accept: */*</span>
+<span class="go">&gt;</span>
+<span class="go">&lt; HTTP/1.1 200 OK</span>
+<span class="go">&lt; Server: gunicorn/19.9.0</span>
+<span class="go">&lt; Date: Fri, 09 Dec 2022 11:51:09 GMT</span>
+<span class="go">&lt; Connection: keep-alive</span>
+<span class="go">&lt; Content-Type: application/json</span>
+<span class="go">&lt; Content-Length: 111</span>
+<span class="go">&lt; Access-Control-Allow-Origin: *</span>
+<span class="go">&lt; Access-Control-Allow-Credentials: true</span>
+<span class="go">&lt;</span>
+<span class="go">{</span>
+<span class="go">  &quot;headers&quot;: {</span>
+<span class="go">    &quot;Accept&quot;: &quot;*/*&quot;,</span>
+<span class="go">    &quot;Host&quot;: &quot;10.237.72.78:8080&quot;,</span>
+<span class="go">    &quot;User-Agent&quot;: &quot;curl/7.58.0&quot;</span>
+<span class="go">  }</span>
+<span class="go">}</span>
+<span class="go">* Connection #0 to host 10.237.72.78 left intact</span>
+</pre></div>
+</div>
+<p>As we exlcluded upf network interfaces upfgtp and n6, the data doesn’t go through the istio’s sidecar. We can see it from the reply. If the reply comes back through istio’s sidecar, few extra fields will be added to the reply. e.g. “x-envoy-upstream-service-time”, “server: istio-envoy” and “x-envoy-decorator-operation”.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

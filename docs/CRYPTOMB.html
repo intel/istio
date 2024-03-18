@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Istio acceleration with Intel® AVX512 crypto instructions &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Istio mTLS Private Key Protection with SGX" href="SGX-mTLS.html" />
+    <link rel="prev" title="Istio crypto and compression acceleration with QAT" href="QAT.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../features.html">Features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="QAT.html">Istio crypto and compression acceleration with QAT</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Istio acceleration with Intel® AVX512 crypto instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SGX-mTLS.html">Istio mTLS Private Key Protection with SGX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SGX-gateway.html">Istio Gateway Private Key Protection with SGX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Meshery.html">Use Meshery to deploy and manage Istio with Intel Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Grafana-Dashboard.html">Grafana Dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Kiali.html">Kiali</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../features.html">Features</a></li>
+      <li class="breadcrumb-item active">Istio acceleration with Intel® AVX512 crypto instructions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/CRYPTOMB.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="istio-acceleration-with-intel-avx512-crypto-instructions">
+<h1>Istio acceleration with Intel® AVX512 crypto instructions<a class="headerlink" href="#istio-acceleration-with-intel-avx512-crypto-instructions" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>Cryptographic operations are among the most compute-intensive and critical operations when it comes to secured connections. Istio uses Envoy as the “gateways/sidecar” to handle secure connections and intercept the traffic.</p>
+<p>Depending upon use cases, when an ingress gateway must handle a large number of incoming TLS and secured service-to-service connections through sidecar proxies, the load on Envoy increases. The potential performance depends on many factors, such as size of the cpuset on which Envoy is running, incoming traffic patterns, and key size. These factors can impact Envoy serving many new incoming TLS requests. In this document you will learn how to enable CryptoMB in Istio to achieve performance improvements and accelerated handshakes.</p>
+<p>CryptoMB means using Intel® Advanced Vector Extensions 512 (Intel® AVX-512) instructions using a SIMD (single instruction, multiple data) mechanism. Up to eight RSA or ECDSA operations are gathered into a buffer and processed at the same time, providing potentially improved performance. Intel AVX-512 instructions are available on recently launched 3rd generation Intel Xeon Scalable processor server processors, or later.</p>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Kubernetes cluster with at least one node 3rd generation Intel Xeon Scalable processor server processors, or later.<br />If not all nodes that support Intel® AVX-512 in Kubernetes cluster, you need to add some labels to divide these two kinds of nodes manually or using <a class="reference external" href="https://github.com/kubernetes-sigs/node-feature-discovery">NFD</a>.<br />And the following instructions are required to use CryptoMB:</p>
+<ul>
+<li><p>BMI2</p></li>
+<li><p>AVX512F</p></li>
+<li><p>AVX512DQ</p></li>
+<li><p>AVX512BW</p></li>
+<li><p>AVX512IFMA</p></li>
+<li><p>AVX512VBMI2</p></li>
+<li><p>AVX512_ENABLEDBYOS</p></li>
+</ul>
+</li>
+<li><p>Istio 1.14, or later</p></li>
+</ul>
+</section>
+<section id="install">
+<h2>Install<a class="headerlink" href="#install" title="Link to this heading"></a></h2>
+<p>Use the following command for the installation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>istioctl<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>-f<span class="w"> </span>intel/yaml/intel-istio-cryptomb.yaml
+</pre></div>
+</div>
+<p>With the above installation, CryptoMB acceleration is used both in <code class="docutils literal notranslate"><span class="pre">istio-ingress-gateway</span></code> and <code class="docutils literal notranslate"><span class="pre">istio-proxy</span></code> sidecar containers.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://istio.io/latest/blog/2022/cryptomb-privatekeyprovider">CryptoMB - TLS handshake acceleration for Istio</a></p>
+<p><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/technical/a-snapshot-of-contributions-to-istio.html">A snapshot of Intel’s contributions to Istio</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="QAT.html" class="btn btn-neutral float-left" title="Istio crypto and compression acceleration with QAT" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="SGX-mTLS.html" class="btn btn-neutral float-right" title="Istio mTLS Private Key Protection with SGX" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

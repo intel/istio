@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prerequisites &mdash; Intel managed distribution of Istio</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel managed distribution of Istio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Intel managed distribution of Envoy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html#intel-managed-distribution-of-istio">Intel managed distribution of Istio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel managed distribution of Istio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Prerequisites</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/docs/setup-sgx-software.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p>This guide shows the steps to setup SGX dependecies and software stack.</p>
+<section id="prerequisites">
+<h1>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h1>
+<ol>
+<li><p><strong>Hardware</strong>: Xeon Family server later than IceLake (included), enabling PRMRR size large enough in the BIOS. Because different devices have different configuration locations in BIOS, the exact configuration path cannot be provided. But the entry is typically in the “Security” section, “Advance” section or “Processor Configuration” section which is configuration path we find.</p>
+<p><img alt="sgx-bios-setting" src="../_images/sgx-bios-setting.png" /></p>
+<p>If you’re using Xeon server later than Sapphire Rapids (included), it may needs more steps to enable SGX:</p>
+<ul class="simple">
+<li><p>Change Volatile Memory Mode to 1LM: 1LM is required to enable TME:</p>
+<ul>
+<li><p>Go to EDKII MENU -&gt; Socket Configuration -&gt; Memory Configuration -&gt; Memory Map</p>
+<ul>
+<li><p>Set Volatile Memory Mode to 1LM</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Enable TME/MKTME: SGX requires TME</p>
+<ul>
+<li><p>Go to EDKII MENU -&gt; Socket Configuration -&gt; Processor Configuration -&gt; TME, TME-MT, TDX</p>
+<ul>
+<li><p>Set Total Memory Encryption (TME) to Enabled</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Enable Software Guard Extension (SGX):</p>
+<ul>
+<li><p>Go to  EDKII MENU -&gt; Socket Configuration -&gt; Processor Configuration -&gt; Software Guard Extension (SGX) - set SW
+Guard Extension</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Software</strong>: Ubuntu20.04 with kernel v5.13+, which is the lowest version the Kubernetes plugins supports.</p>
+<p>•	If the kernel needs to be upgraded and has installed sgx out-of-tree driver, please use <code class="docutils literal notranslate"><span class="pre">dkms</span></code> remove the sgx driver first and then upgrade the kernel, otherwise the panic throw by dkms will prevent the new kernel from being installed correctly. Run “dkms status” to find the older driver and run “dkms remove” to remove it.</p>
+</li>
+</ol>
+</section>
+<section id="sgx-software-stack">
+<h1>SGX Software Stack<a class="headerlink" href="#sgx-software-stack" title="Link to this heading"></a></h1>
+<p><em><strong>This guide based on Ubuntu 20.04</strong></em></p>
+<p>The Linux Intel(R) SGX software stack is comprised of the Intel(R) SGX driver, the Intel(R) SGX SDK, and the Intel(R) SGX Platform Software (PSW). The Intel(R) SGX SDK and Intel(R) SGX PSW are hosted in the <a class="reference external" href="https://github.com/01org/linux-sgx">linux-sgx</a> project.</p>
+<ol>
+<li><p><strong>SGX driver</strong>: the SGX driver has been integrated into the kernel since v5.11, do not install again. In the references of the guideline, there are many redundant steps to install the driver and the sdk, do not follow those instructions.</p></li>
+<li><p><strong>SGX SDK</strong>:</p>
+<ul>
+<li><p>Install dependencies:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">build-essential</span> <span class="pre">python</span></code></p>
+</li>
+<li><p>Get binary installer and install the sdk, in the process you need to specify the path to install. The latest version of SDK is encouraged to be used:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">wget</span> <span class="pre">https://download.01.org/intel-sgx/sgx-linux/2.19/distro/ubuntu20.04-server/sgx_linux_x64_sdk_2.19.100.3.bin</span> <span class="pre">&amp;&amp;</span> <span class="pre">chmod</span> <span class="pre">a+x</span> <span class="pre">sgx_linux_x64_sdk_2.19.100.3.bin</span> <span class="pre">&amp;&amp;</span> <span class="pre">sgx_linux_x64_sdk_2.19.100.3.bin</span></code></p>
+</li>
+</ul>
+</li>
+<li><p><strong>SGX PSW</strong>:</p>
+<ul>
+<li><p>Dependent libs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ echo &#39;deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu focal main&#39; | sudo tee /etc/apt/sources.list.d/intel-sgx.list`
+$ wget -qO - https://download.01.org/intel-sgx/sgx_repo/ubuntu//intel-sgx-deb.key | sudo apt-key add
+$ sudo apt-get update
+</pre></div>
+</div>
+<p>Include:</p>
+<ul class="simple">
+<li><p>libsgx-enclave-common-dev, libsgx-dcap-ql-dev, libsgxdcap-default-qpl-dev</p></li>
+<li><p>libsgx-launch, libsgx-urts, libsgx-epid, libsgx-quote-ex, libsgx-dcap-ql, libsgx-dcap-default-qpl</p></li>
+</ul>
+</li>
+<li><p>DCAP:</p>
+<p><em><strong>Intel(R) Software Guard Extensions (Intel(R) SGX) Data Center Attestation Primitives (Intel(R) SGX DCAP) provides SGX attestation support targeted for data centers, cloud services providers and enterprises. This attestation model leverages Elliptic Curve Digital Signature algorithm (ECDSA) versus the current client based SGX attestation model which is EPID based (Enhanced Privacy Identification).</strong></em></p>
+<ul class="simple">
+<li><p>Following https://github.com/intel/SGXDataCenterAttestationPrimitives/tree/DCAP_1.16/QuoteGeneration#for-linux-os to build and install the Intel(R) SGX DCAP Quote Generation Library and the Intel(R) SGX Default Quote Provider Library Packagequote generation projects.</p></li>
+</ul>
+</li>
+<li><p>PCCS:</p>
+<p><em><strong>This is a lightweight Provisioning Certificate Caching Service implemented in nodejs for reference. It retrieves PCK Certificates and other collaterals on-demand using the internet at runtime, and then caches them in local database. The PCCS exposes similar HTTPS interfaces as Intel(R)’s Provisioning Certificate Service.</strong></em></p>
+<ul>
+<li><p>Subscribe to the Intel(R) PCS in https://api.portal.trustedservices.intel.com/provisioning-certification and get two PCS API keys (either is available)</p></li>
+<li><p>Install PCCS:</p>
+<ul class="simple">
+<li><p>Install node.js</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+$ sudo apt-get install -y nodejs
+$ apt install sqlite3 python build-essential
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">sgx-dcap-pccs</span></code>:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ apt install sgx-dcap-pccs
+</pre></div>
+</div>
+<p>You need specify pccs configuration following the guide in https://www.intel.com/content/www/us/en/developer/articles/guide/intel-software-guard-extensions-data-center-attestation-primitives-quick-install-guide.html. <strong>And remember the user password.</strong></p>
+</li>
+<li><p>Provision a system</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">sgx-pck-id-retrieval-tool</span></code></p></li>
+<li><p>configure <code class="docutils literal notranslate"><span class="pre">/opt/intel/sgx-pck-id-retrieval-tool/network_setting.conf</span></code></p>
+<ul class="simple">
+<li><p>PCCS_URL: refer to above PCCS URL</p></li>
+<li><p>user_toke: refer to user password</p></li>
+<li><p>proxy_type: if PCCS is on the same machine, set to <code class="docutils literal notranslate"><span class="pre">direct</span></code></p></li>
+<li><p>USE_SECURE_CERT: false if aiming to test</p></li>
+</ul>
+</li>
+<li><p>Register the system</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">PCKIDRetrievalTool</span></code></p>
+<p>The output should be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ PCKIDRetrievalTool
+Intel(R) Software Guard Extensions PCK Cert ID Retrieval Tool Version 1.16.100.2
+
+Registration status has been set to completed status.
+the data has been sent to cache server successfully and pckid_retrieval.csv has been generated successfully!
+</pre></div>
+</div>
+</li>
+<li><p>Install aesmd</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libsgx-urts</span> <span class="pre">libsgx-dcap-ql</span> <span class="pre">libsgx-dcap-default-qpl</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">systemctl</span> <span class="pre">restart</span> <span class="pre">aesmd</span></code></p></li>
+</ul>
+</li>
+<li><p>Configure the quote provider library to connect to PCCS to obtain the attestation collateral</p>
+<ul class="simple">
+<li><p>configure /etc/sgx_default_qcnl.conf</p>
+<ul>
+<li><p>PCCS_URL: refer to the above pccs url</p></li>
+<li><p>USE_SECURE_CERT: false; allow self-signed certification</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Check:</p>
+<ul class="simple">
+<li><p>Use the demo in https://github.com/intel/SGXDataCenterAttestationPrimitives/tree/master/SampleCode to check whether the installation is correct. If the demo throws the error code 0xe017, you may need to the no_proxy as <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">no_proxy=localhost,127.0.0.1,::1</span></code></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>References:</p>
+<ul class="simple">
+<li><p>https://download.01.org/intel-sgx/latest/dcap-latest/linux/docs/Intel_SGX_SW_Installation_Guide_for_Linux.pdf - User-mode software installation</p></li>
+<li><p>https://www.intel.com/content/www/us/en/developer/articles/guide/intel-software-guard-extensions-data-center-attestation-primitives-quick-install-guide.html - PCCS installation</p></li>
+<li><p>https://github.com/intel/SGXDataCenterAttestationPrimitives - Intel(R) Software Guard Extensions Data Center Attestation Primitives</p></li>
+<li><p>https://github.com/intel/linux-sgx - Intel(R) Software Guard Extensions for Linux* OS</p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
